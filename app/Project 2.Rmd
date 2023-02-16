@@ -1,0 +1,100 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code. 
+
+Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Cmd+Shift+Enter*. 
+
+```{r}
+data <- read.csv(file = 'New_York_City.csv')
+head(data)
+```
+```{r}
+names(which.max(table(data$'VIOLATION.DESCRIPTION')))
+```
+```{r}
+library(ggplot2)
+install.packages("stringr")
+library("stringr")
+install.packages("repr")
+install.packages("magrittr") # package installations are only needed the first time you use it
+install.packages("dplyr")    # alternative installation of the %>%
+library(magrittr) # needs to be run every time you start R and want to use %>%
+library(dplyr) 
+```
+```{r}
+library(repr)
+options(repr.plot.width = 20, repr.plot.height = 100)
+data <- data %>% filter(data$BORO=='Manhattan')
+data
+```
+
+```{r}
+library(shiny)
+ui <- navbarPage(
+  "NYC Restaurant",
+  tabPanel(
+    "Static Plots",
+    sidebarLayout(
+      sidebarPanel(
+        selectInput(inputId = "borough",
+                    label = "Choose a borough:",
+                    choices = c("Manhattan", "Brooklyn",
+                                "Staten Island", "Queens",
+                                "Bronx"))
+      ),
+      mainPanel(
+        plotOutput(outputId = "plot1"),
+        plotOutput(outputId = "plot2")
+      )
+    )
+  )
+)
+server <- function(input, output) {
+  borough_data <- reactive({
+    if ( "Manhattan" %in% input$borough){
+      data = data %>% filter(data$BORO=='Manhattan')
+      return(data)
+    }
+    if ( "Brooklyn" %in% input$borough){
+      data = data %>% filter(data$BORO=='Brooklyn')
+      return(data)
+    }
+    if ( "Staten Island" %in% input$borough){
+      data = data %>% filter(data$BORO=='Staten Island')
+      return(data)
+    }
+    if ( "Queens" %in% input$borough){
+      data = data %>% filter(data$BORO=='Queens')
+      return(data)
+    }
+    if ( "Bronx" %in% input$borough){
+      data = data %>% filter(data$BORO=='Bronx')
+      return(data)
+    }
+  })
+  output$plot1=renderPlot({
+    data = borough_data()
+    ggplot(data, aes(x = factor(VIOLATION.DESCRIPTION)))+  #change grade to VIOLATION.DESCRIPTION
+         geom_bar(width = 0.9) + coord_flip() +
+         scale_x_discrete(labels = function(x) str_wrap(x, width = 2))
+    })
+  output$plot2=renderPlot({
+    data = borough_data()
+    ggplot(data, aes(x = factor(GRADE)))+  #change grade to VIOLATION.DESCRIPTION
+         geom_bar(width = 0.9) + coord_flip() +
+         scale_x_discrete(labels = function(x) str_wrap(x, width = 200))
+    })
+}
+shinyApp(ui = ui, server = server)
+```
+
+
+Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Cmd+Option+I*.
+
+When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Cmd+Shift+K* to preview the HTML file). 
+
+The preview shows you a rendered HTML copy of the contents of the editor. Consequently, unlike *Knit*, *Preview* does not run any R code chunks. Instead, the output of the chunk when it was last run in the editor is displayed.
+

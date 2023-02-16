@@ -152,9 +152,9 @@ server <- shinyServer(function(input, output) {
         color=~color(data$criticalYN),
         popup=~paste(
           "<b>", data$DBA , "</b><br/>",
-          "criticalYN : ", as.character(data$criticalYN), "<br/>",
-          "Borough:", as.character(data$BORO),
-          "date: ", as.character(data$dateandtime)
+          "Violation Status : ", as.character(data$criticalYN), "<br/>",
+          "Borough: ", as.character(data$BORO), , "<br/>"
+          "Inspection date: ", as.character(data$dateandtime)
         )
         # Popup content
       )
@@ -165,5 +165,3 @@ server <- shinyServer(function(input, output) {
 
 # Run the Shiny app
 shinyApp(ui, server)
-
-min(restaurant_inspections$"INSPECTION DATE")

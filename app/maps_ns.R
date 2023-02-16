@@ -153,7 +153,7 @@ server <- shinyServer(function(input, output) {
         popup=~paste(
           "<b>", data$DBA , "</b><br/>",
           "Violation Status : ", as.character(data$criticalYN), "<br/>",
-          "Borough: ", as.character(data$BORO), , "<br/>"
+          "Borough: ", as.character(data$BORO), "<br/>",
           "Inspection date: ", as.character(data$dateandtime)
         )
         # Popup content

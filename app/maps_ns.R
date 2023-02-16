@@ -51,16 +51,20 @@ if (!require("tm")) {
 
 #Data Prepocessing
 library(readr)
-restaurant_inspections <- read_csv("/Users/namirasuniaprita/Documents/GitHub/ads-spring2023-project2-group1/doc/DOHMH_New_York_City_Restaurant_Inspection_Results.csv")
+current_path = rstudioapi::getActiveDocumentContext()$path 
+setwd(dirname(current_path ))
+year_options = c("2016", "2017",
+                 "2018", "2019",
+                 "2020", "2021",
+                 "2022")
+restaurant_inspections <- read_csv("../data/DOHMH_New_York_City_Restaurant_Inspection_Results.csv")
 restaurant_inspections_filtered <- restaurant_inspections[!(is.na(restaurant_inspections$`VIOLATION DESCRIPTION`) | restaurant_inspections$`VIOLATION DESCRIPTION`==""), ]
 
 restaurant_inspections_filtered_1 <- restaurant_inspections_filtered[!(is.na(restaurant_inspections_filtered$Latitude) | restaurant_inspections_filtered$Latitude=="" | 
                                                                          is.na(restaurant_inspections_filtered$Longitude) | restaurant_inspections_filtered$Longitude=="") , ]
 restaurant_inspections_filtered_1$dateandtime <- as.POSIXct(restaurant_inspections_filtered_1$`INSPECTION DATE`, format = "%m/%d/%Y")
 restaurant_inspections_filtered_1$years <- format(restaurant_inspections_filtered_1$dateandtime, format = "%Y")
-restaurant_inspections_filtered_2 <- restaurant_inspections_filtered_1[which(restaurant_inspections_filtered_1$years %in% c("2018", "2019", "2020",
-                                                                                                                            "2021", "2022", "2017",
-                                                                                                                            "2016")),]
+restaurant_inspections_filtered_2 <- restaurant_inspections_filtered_1[which(restaurant_inspections_filtered_1$years %in% year_options),]
 
 
 restaurant_inspections_filtered_3 <- restaurant_inspections_filtered_2[order(restaurant_inspections_filtered_2$DBA, 
@@ -77,6 +81,19 @@ restaurant_inspections_filtered_3$ACTION <- ifelse(restaurant_inspections_filter
                                                                                                                  "Re-opened")
                                                                         )
                                                    ))
+restaurant_inspections_filtered_year <- filter(restaurant_inspections_filtered_3,years %in% year_options)
+restaurant_inspections_filtered_year$months <- format(restaurant_inspections_filtered_year$dateandtime, format = "%m-%Y")
+df1 <- aggregate(cbind(restaurant_inspections_filtered_year$criticalviolations,restaurant_inspections_filtered_year$noncriticalviolations) ~ 
+                   restaurant_inspections_filtered_year$DBA, data = restaurant_inspections_filtered_year, FUN = sum, na.rm = TRUE)
+
+df1$criticalYN <- ifelse(df1$V1 > df1$V2, "Critical", "Non-Critical")
+df1$DBA <- df1$`restaurant_inspections_filtered_year$DBA`
+df1$critical <- df1$V1
+df1$noncritical <- df1$V2
+df1 <-subset(df1, select = -c(V1, V2, `restaurant_inspections_filtered_year$DBA`))
+
+total <- merge(df1, restaurant_inspections_filtered_year,by="DBA")
+total1 <- total %>% distinct(DBA, .keep_all = TRUE)
 
 # Define UI
 
@@ -90,12 +107,9 @@ ui <- fluidPage(
   fluidRow(column(width = 3,
          box(width = NULL,  
              selectInput(
-               inputId = "years_1",
+               inputId = "years",
                label = "Choose a Year:",
-               choices = c("2016", "2017",
-                           "2018", "2019",
-                           "2020", "2021",
-                           "2022"),
+               choices = total1$years,
                selected = "2019"
              )
              
@@ -106,23 +120,6 @@ ui <- fluidPage(
 
 # Define Server
 server <- shinyServer(function(input, output) {
-  
-  #Data Processing2
-    restaurant_inspections_filtered_year <- restaurant_inspections_filtered_3[restaurant_inspections_filtered_3$years == input$years_1,]
-    restaurant_inspections_filtered_year$months <- format(restaurant_inspections_filtered_year$dateandtime, format = "%m-%Y")
-    df1 <- aggregate(cbind(restaurant_inspections_filtered_year$criticalviolations,restaurant_inspections_filtered_year$noncriticalviolations) ~ 
-                       restaurant_inspections_filtered_year$DBA, data = restaurant_inspections_filtered_year, FUN = sum, na.rm = TRUE)
-    
-    df1$criticalYN <- ifelse(df1$V1 > df1$V2, "Critical", "Non-Critical")
-    df1$DBA <- df1$`restaurant_inspections_filtered_year$DBA`
-    df1$critical <- df1$V1
-    df1$noncritical <- df1$V2
-    df1 <-subset(df1, select = -c(V1, V2, `restaurant_inspections_filtered_year$DBA`))
-    
-    total <- merge(df1, restaurant_inspections_filtered_year,by="DBA")
-    total1 <- total %>% distinct(DBA, .keep_all = TRUE)
-    
-
   
   #maps
   output$map <- renderLeaflet({
@@ -156,10 +153,18 @@ server <- shinyServer(function(input, output) {
     
   })
   
+ # observeEvent(input$years, {
+ #   years_picked <- total1[total1$years == input$years]
+ #   leafletProxy("map", data = years_picked) %>%
+ #     clearMarkers() %>%
+
+        # Popup content
+ #     )
+ # })
+  
 })
 
 
 # Run the Shiny app
 shinyApp(ui, server)
-
 

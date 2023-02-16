@@ -109,7 +109,7 @@ ui <- fluidPage(
              selectInput(
                inputId = "years",
                label = "Choose a Year:",
-               choices = total1$years,
+               choices = year_options,
                selected = "2019"
              )
              
@@ -128,6 +128,21 @@ server <- shinyServer(function(input, output) {
     leaflet(data) %>%
       setView(lng = -73.98928, lat = 40.75042, zoom = 10) %>%
       addProviderTiles("CartoDB.Positron", options = providerTileOptions(noWrap = TRUE)) %>%
+
+      addLegend(
+        "bottomleft", # Legend position
+        pal=color, # color palette
+        values=~data$criticalYN, # legend values
+        opacity = 1,
+        title="Critical Violation"
+      )
+    
+  })
+  
+  observeEvent(input$years, {
+    years_picked <- total1[total1$years == input$years,  c("Latitude", "Longitude")]
+    leafletProxy("map", data = years_picked) %>%
+      clearMarkers() %>%
       addCircleMarkers(
         lng=~data$Longitude, # Longitude coordinates
         lat=~data$Latitude, # Latitude coordinates
@@ -142,29 +157,13 @@ server <- shinyServer(function(input, output) {
           "date: ", as.character(data$dateandtime)
         )
         # Popup content
-      ) %>%
-      addLegend(
-        "bottomleft", # Legend position
-        pal=color, # color palette
-        values=~data$criticalYN, # legend values
-        opacity = 1,
-        title="Critical Violation"
       )
-    
+      })
   })
-  
- # observeEvent(input$years, {
- #   years_picked <- total1[total1$years == input$years]
- #   leafletProxy("map", data = years_picked) %>%
- #     clearMarkers() %>%
 
-        # Popup content
- #     )
- # })
-  
-})
 
 
 # Run the Shiny app
 shinyApp(ui, server)
 
+min(restaurant_inspections$"INSPECTION DATE")

@@ -109,7 +109,7 @@ ui <- fluidPage(
              selectInput(
                inputId = "years",
                label = "Choose a Year:",
-               choices = total1$years,
+               choices = year_options,
                selected = "2019"
              )
              
@@ -128,21 +128,7 @@ server <- shinyServer(function(input, output) {
     leaflet(data) %>%
       setView(lng = -73.98928, lat = 40.75042, zoom = 10) %>%
       addProviderTiles("CartoDB.Positron", options = providerTileOptions(noWrap = TRUE)) %>%
-      addCircleMarkers(
-        lng=~data$Longitude, # Longitude coordinates
-        lat=~data$Latitude, # Latitude coordinates
-        radius=~ifelse(data$criticalYN == "Critical", 2, 2), # Total count
-        stroke=FALSE, # Circle stroke
-        fillOpacity=1, # Circle Fill Opacity
-        color=~color(data$criticalYN),
-        popup=~paste(
-          "<b>", data$DBA , "</b><br/>",
-          "criticalYN : ", as.character(data$criticalYN), "<br/>",
-          "Borough:", as.character(data$BORO),
-          "date: ", as.character(data$dateandtime)
-        )
-        # Popup content
-      ) %>%
+
       addLegend(
         "bottomleft", # Legend position
         pal=color, # color palette
@@ -153,18 +139,29 @@ server <- shinyServer(function(input, output) {
     
   })
   
- # observeEvent(input$years, {
- #   years_picked <- total1[total1$years == input$years]
- #   leafletProxy("map", data = years_picked) %>%
- #     clearMarkers() %>%
-
+  observeEvent(input$years, {
+    years_picked <- total1[total1$years == input$years,  c("Latitude", "Longitude")]
+    leafletProxy("map", data = years_picked) %>%
+      clearMarkers() %>%
+      addCircleMarkers(
+        lng=~data$Longitude, # Longitude coordinates
+        lat=~data$Latitude, # Latitude coordinates
+        radius=~ifelse(data$criticalYN == "Critical", 2, 2), # Total count
+        stroke=FALSE, # Circle stroke
+        fillOpacity=1, # Circle Fill Opacity
+        color=~color(data$criticalYN),
+        popup=~paste(
+          "<b>", data$DBA , "</b><br/>",
+          "Violation Status : ", as.character(data$criticalYN), "<br/>",
+          "Borough: ", as.character(data$BORO), "<br/>",
+          "Inspection date: ", as.character(data$dateandtime)
+        )
         # Popup content
- #     )
- # })
-  
-})
+      )
+      })
+  })
+
 
 
 # Run the Shiny app
 shinyApp(ui, server)
-

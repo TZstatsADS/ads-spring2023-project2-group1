@@ -1,12 +1,61 @@
-library(shiny)
-library(leaflet)
-library(dplyr)
+
+###############################Install Related Packages #######################
+if (!require("shiny")) {
+  install.packages("shiny")
+  library(shiny)
+}
+if (!require("leaflet")) {
+  install.packages("leaflet")
+  library(leaflet)
+}
+if (!require("leaflet.extras")) {
+  install.packages("leaflet.extras")
+  library(leaflet.extras)
+}
+if (!require("dplyr")) {
+  install.packages("dplyr")
+  library(dplyr)
+}
+if (!require("magrittr")) {
+  install.packages("magrittr")
+  library(magrittr)
+}
+if (!require("leafsync")) {
+  install.packages("leafsync")
+  library(leafsync)
+}
+if (!require("shinydashboard")) {
+  install.packages("shinydashboard")
+  library(shinydashboard)
+}
+if (!require("ggplot2")) {
+  install.packages("ggplot2")
+  library(ggplot2)
+}
+if (!require("reshape2")) {
+  install.packages("reshape2")
+  library(reshape2)
+}
+if (!require("tidytext")) {
+  install.packages("tidytext")
+  library(tidytext)
+}
+if (!require("tidyverse")) {
+  install.packages("tidyverse")
+  library(tidyverse)
+}
+if (!require("tm")) {
+  install.packages("tm")
+  library(tm)
+}
+
 
 # Load data
 current_path = rstudioapi::getActiveDocumentContext()$path 
 setwd(dirname(current_path ))
 source('global.R')
 
+#Data Prepocessing
 year_options = c(2016, 2017,
                  2018, 2019,
                  2020, 2021,

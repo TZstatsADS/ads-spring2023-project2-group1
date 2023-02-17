@@ -127,8 +127,8 @@ server <- function(input, output) {
     data
   })
   
-  colors_map <- c("No Violation" = "green", "Not-Critical" = "yellow", "Critical" = "orange", "Not Applicable" = "grey")
-  colors_2 <- c("green","yellow", "orange", "grey")
+  colors_map <- c("No Violation" = "forestgreen", "Not-Critical" = "gold", "Critical" = "orange", "Not Applicable" = "grey")
+  colors_2 <- c("forestgreen","gold", "orange", "grey")
   
   # Render map
   output$map <- renderLeaflet({
@@ -141,7 +141,7 @@ server <- function(input, output) {
         , ~filtered_data()$latitude
         , radius=4
         , stroke=FALSE # Circle stroke
-        , fillOpacity=0.5 # Circle Fill Opacity
+        , fillOpacity=0.3 # Circle Fill Opacity
         , fillColor = colors_2[as.integer(filtered_data()$violation_type)]
         , popup = ~paste(
           "<b>", filtered_data()$restaurant_name , "</b><br/>",

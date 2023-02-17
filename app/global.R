@@ -6,9 +6,9 @@ if (!require("sqldf")) {
   install.packages("sqldf")
   library(sqldf)
 }
-if (!require("sqldf")) {
-  install.packages("sqldf")
-  library(sqldf)
+if (!require("janitor")) {
+  install.packages("janitor")
+  library(janitor)
 }
 
 current_path = rstudioapi::getActiveDocumentContext()$path 

@@ -41,8 +41,8 @@ df = sqldf("
           when action = 'No violations were recorded at the time of this inspection.' then 'No Violation'
           when action = '' then 'No Violation'
           when action is null then 'No Violation'
+          when critical_flag = 'Not Critical' then 'YY'
           when critical_flag = 'Critical' then 'XX'
-          when critical_flag = 'Not-Critical' then 'YY'
           else critical_flag
           end violation_type
           , critical_flag

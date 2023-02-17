@@ -62,23 +62,42 @@ year_options = c(2016, 2017,
                  2022)
 
 df <- filter(df_unique,inspection_year %in% year_options)
+colors_map <- c("Critical" = "orange", "Not-Critical" = "yellow", "Not Applicable" = "grey", "No Violation" = "green")
+
+'%like%' <- function(x, pattern) {
+  grepl(pattern, x, ignore.case = TRUE)
+}
 
 # Define UI
 ui <- fluidPage(
-  titlePanel("Interactive Map with Filters"),
+  titlePanel("Explore NYC Restaurant Inspections"),
   sidebarLayout(
     sidebarPanel(
       selectInput("borough", "Select Borough:", 
-                  choices = unique(df$boro), 
-                  selected = "Manhattan"),
+                  choices = unique(df$boro),
+                  selected = 'Manhattan',
+                  multiple = TRUE),
       selectInput(
         inputId = "years",
         label = "Inspection Year:",
-        choices = year_options),
+        choices = year_options,
+        selected = 2022,
+        multiple = TRUE),
+      selectInput(
+        inputId = "grade",
+        label = "Inspection Grade:",
+        choices = unique(df$grade),
+        selected = 'C',
+        multiple = TRUE),
       selectInput(
         inputId = "viol",
         label = "Violation Type:",
-        choices = unique(df$violation_type))
+        choices = unique(df$violation_type),
+        selected = 'Critical',
+        multiple = TRUE),
+      textInput("rest_name", 
+        label = "Restaurant Name:", 
+        value = "")
     ),
     mainPanel(
       leafletOutput("map")
@@ -91,15 +110,25 @@ server <- function(input, output) {
   
   # Filter data based on user inputs
   filtered_data <- reactive({
-    df %>%
-      filter(boro == input$borough,
-             inspection_year == input$years,
-             violation_type == input$viol) %>%
-      mutate(violation_type = as.factor(violation_type)) 
+    # Filter by selected borough, inspection year, and violation type
+    data <- df %>%
+      filter(boro %in% input$borough,
+             inspection_year %in% input$years,
+             violation_type %in% input$viol,
+             grade %in% input$grade)
+    
+    # Filter by restaurant name if text input is not empty
+    if (input$rest_name != "") {
+      data <- data %>% filter(str_to_lower(restaurant_name) %like% str_to_lower(input$rest_name))
+    }
+    
+    # Convert violation type to factor with ordered levels for color mapping
+    data$violation_type <- factor(data$violation_type, levels = names(colors_map))
+    data
   })
   
   colors_map <- c("No Violation" = "green", "Not-Critical" = "yellow", "Critical" = "orange", "Not Applicable" = "grey")
-  colors_2 <- c("orange","grey", "green", "yellow")
+  colors_2 <- c("green","yellow", "orange", "grey")
   
   # Render map
   output$map <- renderLeaflet({

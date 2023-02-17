@@ -119,9 +119,13 @@ df_clean = sqldf("
 
 # filtering
 
+# data where inspection_year=1900 means that this restaurant has not had inspections
+# exclude it from analysis such as count of inspections
+
 # df_clean contains unfiltered data (except where removed due to no longlat), however it has been grouped so that each row is one unique inspection date, rather than a citation
 # violation type included in df_clean is the most severe violation type
 # restaurants may appear several times as they may have gone through multiple inspections
+# please use df_unique to show number of inspections per year, or number of inspections per restaurant
 
 df_unique = sqldf("
           with rownum as (
@@ -134,6 +138,9 @@ df_unique = sqldf("
           where rank_=1
           ")
 
+# df_unique contains 1 row per restaurant per year. for each year, it takes only data from the last inspection
+# please use it to show comparisons of inspection grade/violations over time, or any data over time (yearly)
+
 df_2022 = sqldf("
           with rownum as (
           select *
@@ -145,5 +152,8 @@ df_2022 = sqldf("
           from rownum
           where rank_=1
           ")
+
+# df_2022 contains only the last inspection data from 2022 (or uninspected restaurants)
+# please use it for analysis that is not over time (e.g. word cloud of violations, distribution of rating)
           
 

@@ -8,7 +8,7 @@ This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute
 Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Cmd+Shift+Enter*. 
 
 ```{r}
-data <- read.csv(file = 'New_York_City.csv')
+data <- read.csv(file = 'Data Inspection Result_cleaned.csv')
 head(data)
 ```
 ```{r}
@@ -46,8 +46,7 @@ ui <- navbarPage(
                                 "Bronx"))
       ),
       mainPanel(
-        plotOutput(outputId = "plot1"),
-        plotOutput(outputId = "plot2")
+        plotOutput(outputId = "plot")
       )
     )
   )
@@ -75,15 +74,9 @@ server <- function(input, output) {
       return(data)
     }
   })
-  output$plot1=renderPlot({
+  output$plot=renderPlot({
     data = borough_data()
-    ggplot(data, aes(x = factor(VIOLATION.DESCRIPTION)))+  #change grade to VIOLATION.DESCRIPTION
-         geom_bar(width = 0.9) + coord_flip() +
-         scale_x_discrete(labels = function(x) str_wrap(x, width = 2))
-    })
-  output$plot2=renderPlot({
-    data = borough_data()
-    ggplot(data, aes(x = factor(GRADE)))+  #change grade to VIOLATION.DESCRIPTION
+    ggplot(data, aes(x = factor(GRADE)))+  
          geom_bar(width = 0.9) + coord_flip() +
          scale_x_discrete(labels = function(x) str_wrap(x, width = 200))
     })

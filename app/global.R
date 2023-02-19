@@ -23,6 +23,8 @@ df$inspection_date <- as.POSIXct(df$inspection_date, format = "%m/%d/%Y")
 df$inspection_year <- as.numeric(format(df$inspection_date, format = "%Y"))
 df <- df[!(is.na(df$latitude) | df$latitude=="" | df$latitude==0 | is.na(df$longitude) | df$longitude=="") | df$longitude==0 , ]
 
+df_no_mod <- df
+
 df = sqldf("
           select
           camis restaurant_code
@@ -36,6 +38,7 @@ df = sqldf("
           , inspection_date
           , inspection_year
           , action
+          , violation_code
           , violation_description
           , case 
           when action = 'No violations were recorded at the time of this inspection.' then 'No Violation'

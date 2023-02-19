@@ -81,6 +81,8 @@ year_options = c(2016, 2017,
                  2022)
 
 df <- filter(df_unique,inspection_year %in% year_options)
+df_no_mod_2022 <- filter(df_no_mod, inspection_year==2022)
+df_unique_2022 <- filter(df_unique, inspection_year==2022)
 
 '%like%' <- function(x, pattern) {
   grepl(pattern, x, ignore.case = TRUE)
@@ -155,7 +157,7 @@ ui <- fluidPage(
     # Tab 2
     tabPanel("Government Initiatives", value = "Government Initiatives",
              h1("Government Initiatives"),
-             p("This is the government initiatives tab. Here you can discuss any related government programs, policies, or initiatives."),
+             p("Most inspections in 2022 resulted in an A grade, but plenty of violations still happened, and we can see the most common keywords that show up."),
              sidebarLayout(
                sidebarPanel(
                  selectInput(inputId = "borough",
@@ -208,7 +210,7 @@ ui <- fluidPage(
                  actionButton("search", "Search", class = "btn btn-success btn-block")
                ),
                mainPanel(
-                 leafletOutput("map", width = "100%", height = "550px"),
+                 leafletOutput("map", width = "100%", height = "590px"),
                  div(id = "result-table")
                )
              )
@@ -280,14 +282,17 @@ server <- function(input, output) {
   
   #Render Barplot
   
-  da <- read.csv("../data/Data Inspection Result_cleaned.csv")
+  da <- df_no_mod_2022
   borough_data <- reactive({
-    da<-da %>% filter(da$BORO %in% input$borough)
+    da<-da %>% filter(da$boro %in% input$borough)
+  })
+  plot_data <- reactive({
+    df_unique_2022<-df_unique_2022 %>% filter(df_unique_2022$boro %in% input$borough)
   })
   
   output$plot1=renderPlot({
-    data2 = borough_data()
-    ggplot(data2, aes(x = factor(GRADE)))+  
+    data2 = plot_data()
+    ggplot(data2, aes(x = factor(grade)))+  
       geom_bar(width = 0.9) + coord_flip() +
       scale_x_discrete(labels = function(x) str_wrap(x, width = 200))
   })
@@ -302,10 +307,10 @@ server <- function(input, output) {
     #Filtering
     
     df1<-dw |>
-      filter(VIOLATION.CODE=="02B")
+      filter(violation_code=="02B")
     wc_data1 = 
       df1 |>
-      unnest_tokens(output = word, input = VIOLATION.DESCRIPTION)|>
+      unnest_tokens(output = word, input = violation_description)|>
       anti_join(y = stop_words)|>
       group_by(word)|>
       summarize(n = n())|>
@@ -314,10 +319,10 @@ server <- function(input, output) {
     wordcloud(words = wc_data1$word, freq = wc_data1$n,scale = c(2,0.5),max.words = 200,rot.per = 0)
     
     df2<-dw |>
-      filter(VIOLATION.CODE=="02G")
+      filter(violation_code=="02G")
     wc_data2 = 
       df2 |>
-      unnest_tokens(output = word, input = VIOLATION.DESCRIPTION)|>
+      unnest_tokens(output = word, input = violation_description)|>
       anti_join(y = stop_words)|>
       group_by(word)|>
       summarize(n = n())|>
@@ -326,10 +331,10 @@ server <- function(input, output) {
     wordcloud(words = wc_data2$word, freq = wc_data2$n,scale = c(2,0.5),max.words = 200,rot.per = 0)
     
     df3<-dw |>
-      filter(VIOLATION.CODE=="04L")
+      filter(violation_code=="04L")
     wc_data3 = 
       df3 |>
-      unnest_tokens(output = word, input = VIOLATION.DESCRIPTION)|>
+      unnest_tokens(output = word, input = violation_description)|>
       anti_join(y = stop_words)|>
       group_by(word)|>
       summarize(n = n())|>
@@ -338,10 +343,10 @@ server <- function(input, output) {
     wordcloud(words = wc_data3$word, freq = wc_data3$n,scale = c(2,0.5),max.words = 200,rot.per = 0)
     
     df4<-dw |>
-      filter(VIOLATION.CODE=="04N")
+      filter(violation_code=="04N")
     wc_data4 = 
       df4 |>
-      unnest_tokens(output = word, input = VIOLATION.DESCRIPTION)|>
+      unnest_tokens(output = word, input = violation_description)|>
       anti_join(y = stop_words)|>
       group_by(word)|>
       summarize(n = n())|>
@@ -350,10 +355,10 @@ server <- function(input, output) {
     wordcloud(words = wc_data4$word, freq = wc_data4$n,scale = c(2,0.5),max.words = 200,rot.per = 0)
     
     df5<-dw |>
-      filter(VIOLATION.CODE=="06C")
+      filter(violation_code=="06C")
     wc_data5 = 
       df5 |>
-      unnest_tokens(output = word, input = VIOLATION.DESCRIPTION)|>
+      unnest_tokens(output = word, input = violation_description)|>
       anti_join(y = stop_words)|>
       group_by(word)|>
       summarize(n = n())|>
@@ -362,10 +367,10 @@ server <- function(input, output) {
     wordcloud(words = wc_data5$word, freq = wc_data5$n,scale = c(2,0.5),max.words = 200,rot.per = 0)
     
     df6<-dw |>
-      filter(VIOLATION.CODE=="06D")
+      filter(violation_code=="06D")
     wc_data6 = 
       df6 |>
-      unnest_tokens(output = word, input = VIOLATION.DESCRIPTION)|>
+      unnest_tokens(output = word, input = violation_description)|>
       anti_join(y = stop_words)|>
       group_by(word)|>
       summarize(n = n())|>
@@ -374,10 +379,10 @@ server <- function(input, output) {
     wordcloud(words = wc_data6$word, freq = wc_data6$n,scale = c(2,0.5),max.words = 200,rot.per = 0)
     
     df7<-dw |>
-      filter(VIOLATION.CODE=="08A")
+      filter(violation_code=="08A")
     wc_data7 = 
       df7 |>
-      unnest_tokens(output = word, input = VIOLATION.DESCRIPTION)|>
+      unnest_tokens(output = word, input = violation_description)|>
       anti_join(y = stop_words)|>
       group_by(word)|>
       summarize(n = n())|>
@@ -386,10 +391,10 @@ server <- function(input, output) {
     wordcloud(words = wc_data7$word, freq = wc_data7$n,scale = c(2,0.5),max.words = 200,rot.per = 0)
     
     df8<-dw |>
-      filter(VIOLATION.CODE=="10B")
+      filter(violation_code=="10B")
     wc_data8 = 
       df8 |>
-      unnest_tokens(output = word, input = VIOLATION.DESCRIPTION)|>
+      unnest_tokens(output = word, input = violation_description)|>
       anti_join(y = stop_words)|>
       group_by(word)|>
       summarize(n = n())|>
@@ -398,10 +403,10 @@ server <- function(input, output) {
     wordcloud(words = wc_data8$word, freq = wc_data8$n,scale = c(2,0.5),max.words = 200,rot.per = 0)
     
     df9<-dw |>
-      filter(VIOLATION.CODE=="10F")
+      filter(violation_code=="10F")
     wc_data9 = 
       df9 |>
-      unnest_tokens(output = word, input = VIOLATION.DESCRIPTION)|>
+      unnest_tokens(output = word, input = violation_description)|>
       anti_join(y = stop_words)|>
       group_by(word)|>
       summarize(n = n())|>

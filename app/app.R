@@ -65,9 +65,10 @@ if (!require("magrittr")) {
 }
 
 
-###############################Load The Data #######################
 
-# Set up directory
+
+
+###############################Load The Data #######################
 
 current_path = rstudioapi::getActiveDocumentContext()$path 
 setwd(dirname(current_path ))
@@ -80,7 +81,6 @@ year_options = c(2016, 2017,
                  2022)
 
 df <- filter(df_unique,inspection_year %in% year_options)
-colors_map <- c("Critical" = "orange", "Not-Critical" = "yellow", "Not Applicable" = "grey", "No Violation" = "green")
 
 '%like%' <- function(x, pattern) {
   grepl(pattern, x, ignore.case = TRUE)
@@ -149,7 +149,13 @@ ui <- fluidPage(
     # Tab 1
     tabPanel("Introduction", value = "Introduction",
              h1("Introduction"),
-             p("This is the introduction tab. Here you can provide some background or context for your app."),
+             p("This is the introduction tab. Here you can provide some background or context for your app.")
+    ),
+    
+    # Tab 2
+    tabPanel("Government Initiatives", value = "Government Initiatives",
+             h1("Government Initiatives"),
+             p("This is the government initiatives tab. Here you can discuss any related government programs, policies, or initiatives."),
              sidebarLayout(
                sidebarPanel(
                  selectInput(inputId = "borough",
@@ -162,24 +168,6 @@ ui <- fluidPage(
                  plotOutput(outputId = "plot1"),
                  plotOutput(outputId = "plot2")
                )
-             )
-    ),
-    
-    # Tab 2
-    tabPanel("Government Initiatives", value = "Government Initiatives",
-             h1("Inspections on Restaurants by Borough and Cuisine Type"),
-             p("This is the government initiatives tab. Here you can discuss any related government programs, policies, or initiatives."),
-             sidebarLayout(
-               sidebarPanel(
-                 selectInput(inputId = "borough", label = "Choose a borough:",
-                             choices = c("Manhattan", "Bronx", "Brooklyn", "Queens", "Staten Island")),
-                 selectInput(inputId = "cursine_type", label = "Choose a cursine type:",
-                             choices = c("Chinese", "American", "Italian", "Japanese","Korean")),
-               ),
-               mainPanel(
-                 plotOutput(outputId = "Plot3"),
-                 plotOutput(outputId = "Plot4")
-               )
              )),
     
     # Tab 3
@@ -187,7 +175,7 @@ ui <- fluidPage(
              h1("The Results"),
              sidebarLayout(
                sidebarPanel(
-                 selectInput("borough", "Select Borough:", 
+                 selectInput("boro", "Select Borough:", 
                              choices = unique(df$boro),
                              selected = 'Manhattan',
                              multiple = TRUE),
@@ -212,11 +200,15 @@ ui <- fluidPage(
                  textInput("rest_name", 
                            label = "Restaurant Name:", 
                            value = "",
-                           placeholder = "Enter restaurant name"),
+                           placeholder = "Enter restaurant name..."),
+                 textInput("viol_desc", 
+                           label = "Violation Description:", 
+                           value = "",
+                           placeholder = "Try rats or flies..."),
                  actionButton("search", "Search", class = "btn btn-success btn-block")
                ),
                mainPanel(
-                 leafletOutput("map"),
+                 leafletOutput("map", width = "100%", height = "550px"),
                  div(id = "result-table")
                )
              )
@@ -233,7 +225,7 @@ server <- function(input, output) {
   filtered_data <- reactive({
     # Filter by selected borough, inspection year, and violation type
     data <- df %>%
-      filter(boro %in% input$borough,
+      filter(boro %in% input$boro,
              inspection_year %in% input$years,
              violation_type %in% input$viol,
              grade %in% input$grade)
@@ -241,6 +233,9 @@ server <- function(input, output) {
     # Filter by restaurant name if text input is not empty
     if (input$rest_name != "") {
       data <- data %>% filter(str_to_lower(restaurant_name) %like% str_to_lower(input$rest_name))
+    }
+    if (input$viol_desc != "") {
+      data <- data %>% filter(str_to_lower(violation_description) %like% str_to_lower(input$viol_desc))
     }
     
     # Convert violation type to factor with ordered levels for color mapping
@@ -251,7 +246,10 @@ server <- function(input, output) {
   colors_map <- c("No Violation" = "forestgreen", "Not-Critical" = "gold", "Critical" = "orange", "Not Applicable" = "grey")
   colors_2 <- c("forestgreen","gold", "orange", "grey")
   
-  # Render Map
+  colors_map <- c("No Violation" = "forestgreen", "Not-Critical" = "gold", "Critical" = "orange", "Not Applicable" = "grey")
+  colors_2 <- c("forestgreen","gold", "orange", "grey")
+  
+  # Render map
   output$map <- renderLeaflet({
     leaflet(filtered_data()) %>%
       setView(lng = -73.98928, lat = 40.75042, zoom = 12) %>%
@@ -282,7 +280,7 @@ server <- function(input, output) {
   
   #Render Barplot
   
-  da <- read.csv("/Users/namirasuniaprita/Documents/GitHub/ads-spring2023-project2-group1/data/Data Inspection Result_cleaned.csv")
+  da <- read.csv("../data/Data Inspection Result_cleaned.csv")
   borough_data <- reactive({
     da<-da %>% filter(da$BORO %in% input$borough)
   })
@@ -410,92 +408,6 @@ server <- function(input, output) {
       ungroup()|>
       arrange(desc(n))
     wordcloud(words = wc_data9$word, freq = wc_data9$n,scale = c(2,0.5),max.words = 200,rot.per = 0)    
-  })
-  
-  # Render Bar Chart
-  
-  ds = read.csv("/Users/namirasuniaprita/Documents/GitHub/ads-spring2023-project2-group1/data/DOHMH_New_York_City_Restaurant_Inspection_Results.csv")
-  ds= ds %>% filter(grepl("2020", ds$INSPECTION.DATE) | grepl("2019", ds$INSPECTION.DATE) | grepl("2021", ds$INSPECTION.DATE))
-  ds = ds %>% filter(ds$CUISINE.DESCRIPTION =="Chinese"|ds$CUISINE.DESCRIPTION =="Korean"|ds$CUISINE.DESCRIPTION =="Japanese"|ds$CUISINE.DESCRIPTION =="American"|ds$CUISINE.DESCRIPTION =="Italian") %>% group_by(BORO) %>% select(BORO,INSPECTION.DATE,CUISINE.DESCRIPTION)
-  data1 <- count(ds %>% group_by(INSPECTION.DATE) %>% filter(CUISINE.DESCRIPTION == "Korean"))
-  data1 = data1 %>% arrange(mdy(data1$INSPECTION.DATE))
-  data1$INSPECTION.DATE <- as.Date(data1$INSPECTION.DATE, format="%m/%d/%Y")
-  print(ggplot(data1,aes(x = data1$INSPECTION.DATE, y = data1$n, group = 1))+geom_line(color = "steelblue")+labs(x="Date",y="Number of Inspections") + labs(title = paste("The relationship between Time and number of Inspections on Restaurants in ")) + scale_x_date())
-  
-  borough_data <- reactive({
-    if ( "Manhattan" %in% input$borough){
-      data = count(ds %>% group_by(INSPECTION.DATE) %>% filter(BORO == "Manhattan"))
-      data = data %>% arrange(mdy(data$INSPECTION.DATE))
-      data$INSPECTION.DATE <- as.Date(data$INSPECTION.DATE, format="%m/%d/%Y")
-      return(data)
-    }
-    if ( "Bronx" %in% input$borough){
-      data = count(ds %>% group_by(INSPECTION.DATE) %>% filter(BORO == "Bronx"))
-      data = data %>% arrange(mdy(data$INSPECTION.DATE))
-      data$INSPECTION.DATE <- as.Date(data$INSPECTION.DATE, format="%m/%d/%Y")
-      return(data)
-    }
-    if ( "Brooklyn" %in% input$borough){
-      data = count(ds %>% group_by(INSPECTION.DATE) %>% filter(BORO == "Brooklyn"))
-      data = data %>% arrange(mdy(data$INSPECTION.DATE))
-      data$INSPECTION.DATE <- as.Date(data$INSPECTION.DATE, format="%m/%d/%Y")
-      return(data)
-    }
-    if ( "Queens" %in% input$borough){
-      data = count(ds %>% group_by(INSPECTION.DATE) %>% filter(BORO == "Queens"))
-      data = data %>% arrange(mdy(data$INSPECTION.DATE))
-      data$INSPECTION.DATE <- as.Date(data$INSPECTION.DATE, format="%m/%d/%Y")
-      return(data)
-    }
-    if ( "Staten Island" %in% input$borough){
-      data = count(ds %>% group_by(INSPECTION.DATE) %>% filter(BORO == "Staten Island"))
-      data = data %>% arrange(mdy(data$INSPECTION.DATE))
-      data$INSPECTION.DATE <- as.Date(data$INSPECTION.DATE, format="%m/%d/%Y")
-      return(data)
-    }
-  })
-  
-  cuisine_type_data <- reactive({
-    if ( "Korean" %in% input$cursine_type){
-      data = count(ds %>% group_by(INSPECTION.DATE) %>% filter(CUISINE.DESCRIPTION == "Korean"))
-      data = data %>% arrange(mdy(data$INSPECTION.DATE))
-      data$INSPECTION.DATE <- as.Date(data$INSPECTION.DATE, format="%m/%d/%Y")
-      return(data)
-    }
-    if ( "American" %in% input$cursine_type){
-      data = count(ds %>% group_by(INSPECTION.DATE) %>% filter(CUISINE.DESCRIPTION == "American"))
-      data = data %>% arrange(mdy(data$INSPECTION.DATE))
-      data$INSPECTION.DATE <- as.Date(data$INSPECTION.DATE, format="%m/%d/%Y")
-      return(data)
-    }
-    if ( "Chinese" %in% input$cursine_type){
-      data = count(ds %>% group_by(INSPECTION.DATE) %>% filter(CUISINE.DESCRIPTION == "Chinese"))
-      data = data %>% arrange(mdy(data$INSPECTION.DATE))
-      data$INSPECTION.DATE <- as.Date(data$INSPECTION.DATE, format="%m/%d/%Y")
-      return(data)
-    }
-    if ( "Japanese" %in% input$cursine_type){
-      data = count(ds %>% group_by(INSPECTION.DATE) %>% filter(CUISINE.DESCRIPTION == "Japanese"))
-      data = data %>% arrange(mdy(data$INSPECTION.DATE))
-      data$INSPECTION.DATE <- as.Date(data$INSPECTION.DATE, format="%m/%d/%Y")
-      return(data)
-    }
-    if ( "Italian" %in% input$cursine_type){
-      data = count(ds %>% group_by(INSPECTION.DATE) %>% filter(CUISINE.DESCRIPTION == "Italian"))
-      data = data %>% arrange(mdy(data$INSPECTION.DATE))
-      data$INSPECTION.DATE <- as.Date(data$INSPECTION.DATE, format="%m/%d/%Y")
-      return(data)
-    }
-  })
-  
-  output$Plot3 <- renderPlot({
-    data = borough_data()
-    print(ggplot(data,aes(x = INSPECTION.DATE, y = n, group = 1))+geom_line(color = "steelblue")+labs(x="Date",y="Number of Inspections") + labs(title = paste("The relationship between Time and number of Inspections on Restaurants in ", input$borough))+ scale_x_date())
-  })
-  
-  output$Plot4 <- renderPlot({
-    data = cuisine_type_data()
-    print(ggplot(data,aes(x = INSPECTION.DATE, y = n, group = 1))+geom_line(color = "orange")+labs(x="Date",y="Number of Inspections") + labs(title = paste("The relationship between Time and number of Inspections on ", input$cursine_type, " Restaurants"))+ scale_x_date())
   })
   
 }

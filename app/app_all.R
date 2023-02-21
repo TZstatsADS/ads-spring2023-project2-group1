@@ -166,7 +166,7 @@ ui <- fluidPage(
     # Tab 1
     tabPanel("Introduction", value = "Introduction",
              h1("Introduction"),
-             p("This is the introduction tab. Here you can provide some background or context for your app."),
+             p("Eating healthy isn't about eating more or eating less, it's about eating right! Our restaurant guide will give you a rundown of all the hygiene practices and things 'to know and beware of', before visiting restaurants in the city. The information we present is brought to you by inspections conducted by the Department of Health and Mental Hygiene. We care for where you eat!"),
                mainPanel(
                  plotOutput(outputId = "plot1"),
                  plotOutput(outputId = "plot2")
@@ -329,7 +329,7 @@ server <- function(input, output) {
       summarize(n = n())|>
       ungroup()|>
       arrange(desc(n))
-    wordcloud(words = wc_data1$word, freq = wc_data1$n,scale = c(2,0.5),max.words = 200,rot.per = 0)
+    wordcloud(words = wc_data1$word, freq = wc_data1$n,scale = c(2,0.5),max.words = 200,rot.per = 0, colors="Red")
     
     df2<-dw |>
       filter(violation_code=="02G")
@@ -341,7 +341,7 @@ server <- function(input, output) {
       summarize(n = n())|>
       ungroup()|>
       arrange(desc(n))
-    wordcloud(words = wc_data2$word, freq = wc_data2$n,scale = c(2,0.5),max.words = 200,rot.per = 0)
+    wordcloud(words = wc_data2$word, freq = wc_data2$n,scale = c(2,0.5),max.words = 200,rot.per = 0, colors="Red")
     
     df3<-dw |>
       filter(violation_code=="04L")
@@ -353,7 +353,7 @@ server <- function(input, output) {
       summarize(n = n())|>
       ungroup()|>
       arrange(desc(n))
-    wordcloud(words = wc_data3$word, freq = wc_data3$n,scale = c(2,0.5),max.words = 200,rot.per = 0)
+    wordcloud(words = wc_data3$word, freq = wc_data3$n,scale = c(2,0.5),max.words = 200,rot.per = 0, colors="Red")
     
     df4<-dw |>
       filter(violation_code=="04N")
@@ -365,7 +365,7 @@ server <- function(input, output) {
       summarize(n = n())|>
       ungroup()|>
       arrange(desc(n))
-    wordcloud(words = wc_data4$word, freq = wc_data4$n,scale = c(2,0.5),max.words = 200,rot.per = 0)
+    wordcloud(words = wc_data4$word, freq = wc_data4$n,scale = c(2,0.5),max.words = 200,rot.per = 0, colors="Red")
     
     df5<-dw |>
       filter(violation_code=="06C")
@@ -377,7 +377,7 @@ server <- function(input, output) {
       summarize(n = n())|>
       ungroup()|>
       arrange(desc(n))
-    wordcloud(words = wc_data5$word, freq = wc_data5$n,scale = c(2,0.5),max.words = 200,rot.per = 0)
+    wordcloud(words = wc_data5$word, freq = wc_data5$n,scale = c(2,0.5),max.words = 200,rot.per = 0, colors="Red")
     
     df6<-dw |>
       filter(violation_code=="06D")
@@ -389,7 +389,7 @@ server <- function(input, output) {
       summarize(n = n())|>
       ungroup()|>
       arrange(desc(n))
-    wordcloud(words = wc_data6$word, freq = wc_data6$n,scale = c(2,0.5),max.words = 200,rot.per = 0)
+    wordcloud(words = wc_data6$word, freq = wc_data6$n,scale = c(2,0.5),max.words = 200,rot.per = 0, colors="Red")
     
     df7<-dw |>
       filter(violation_code=="08A")
@@ -401,7 +401,7 @@ server <- function(input, output) {
       summarize(n = n())|>
       ungroup()|>
       arrange(desc(n))
-    wordcloud(words = wc_data7$word, freq = wc_data7$n,scale = c(2,0.5),max.words = 200,rot.per = 0)
+    wordcloud(words = wc_data7$word, freq = wc_data7$n,scale = c(2,0.5),max.words = 200,rot.per = 0, colors="Red")
     
     df8<-dw |>
       filter(violation_code=="10B")
@@ -413,7 +413,7 @@ server <- function(input, output) {
       summarize(n = n())|>
       ungroup()|>
       arrange(desc(n))
-    wordcloud(words = wc_data8$word, freq = wc_data8$n,scale = c(2,0.5),max.words = 200,rot.per = 0)
+    wordcloud(words = wc_data8$word, freq = wc_data8$n,scale = c(2,0.5),max.words = 200,rot.per = 0, colors="Red")
     
     df9<-dw |>
       filter(violation_code=="10F")
@@ -425,7 +425,7 @@ server <- function(input, output) {
       summarize(n = n())|>
       ungroup()|>
       arrange(desc(n))
-    wordcloud(words = wc_data9$word, freq = wc_data9$n,scale = c(2,0.5),max.words = 200,rot.per = 0)    
+    wordcloud(words = wc_data9$word, freq = wc_data9$n,scale = c(2,0.5),max.words = 200,rot.per = 0, colors="Red")    
   })
   
   # Render Bar Chart

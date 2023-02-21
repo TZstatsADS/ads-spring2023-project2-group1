@@ -91,7 +91,6 @@ df_unique_2022 <- filter(df_unique, inspection_year==2022)
   grepl(pattern, x, ignore.case = TRUE)
 }
 
-###############################Define UI #######################
 
 
 ###############################Define UI #######################

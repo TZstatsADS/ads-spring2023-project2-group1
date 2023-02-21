@@ -167,8 +167,6 @@ ui <- fluidPage(
     tabPanel("Introduction", value = "Introduction",
              h1("Introduction"),
              p("This is the introduction tab. Here you can provide some background or context for your app."),
-             
-               
                mainPanel(
                  plotOutput(outputId = "plot1"),
                  plotOutput(outputId = "plot2")
@@ -304,19 +302,16 @@ server <- function(input, output) {
   })
   
   #Render Barplot
-  
-  
-  
   output$plot1=renderPlot({
     data2 = df_unique_2022 %>% filter(df_unique_2022$grade=='A' | df_unique_2022$grade=='B' |df_unique_2022$grade=='C' | df_unique_2022$grade=='N' | df_unique_2022$grade=='P' | df_unique_2022$grade=='Z')
-    ggplot(data2, aes(x = factor(grade)))+  
+    ggplot(data2, aes(x = factor(grade), fill=factor(ifelse(grade=="A","Restaurants with Grade A","Restaurants without Grade A"))))+  
       geom_bar(width = 0.9) + coord_flip() +
       scale_x_discrete(labels = function(x) str_wrap(x, width = 200))+
-      labs(x="Numbers of Restaurant",y="Grade")
+      labs(x="Numbers of Restaurant",y="Grade")+
+      scale_fill_manual(name = "grade", values=c("red","grey50"))
   })
   
   #Render Worldcloud
-  
   output$plot2=renderPlot({
     dw = df_no_mod_2022
     

@@ -167,19 +167,13 @@ ui <- fluidPage(
     tabPanel("Introduction", value = "Introduction",
              h1("Introduction"),
              p("This is the introduction tab. Here you can provide some background or context for your app."),
-             sidebarLayout(
-               sidebarPanel(
-                 selectInput(inputId = "borough",
-                             label = "Choose a borough:",
-                             choices = c("Manhattan", "Brooklyn",
-                                         "Staten Island", "Queens",
-                                         "Bronx"))
-               ),
+             
+               
                mainPanel(
                  plotOutput(outputId = "plot1"),
                  plotOutput(outputId = "plot2")
                )
-             )
+             
     ),
     
     # Tab 2
@@ -311,25 +305,20 @@ server <- function(input, output) {
   
   #Render Barplot
   
-  da <- df_no_mod_2022
-  borough_data <- reactive({
-    da<-da %>% filter(da$boro %in% input$borough)
-  })
-  plot_data <- reactive({
-    df_unique_2022<-df_unique_2022 %>% filter(df_unique_2022$boro %in% input$borough)
-  })
+  
   
   output$plot1=renderPlot({
-    data2 = plot_data()
+    data2 = df_unique_2022 %>% filter(df_unique_2022$grade=='A' | df_unique_2022$grade=='B' |df_unique_2022$grade=='C' | df_unique_2022$grade=='N' | df_unique_2022$grade=='P' | df_unique_2022$grade=='Z')
     ggplot(data2, aes(x = factor(grade)))+  
       geom_bar(width = 0.9) + coord_flip() +
-      scale_x_discrete(labels = function(x) str_wrap(x, width = 200))
+      scale_x_discrete(labels = function(x) str_wrap(x, width = 200))+
+      labs(x="Numbers of Restaurant",y="Grade")
   })
   
   #Render Worldcloud
   
   output$plot2=renderPlot({
-    dw = borough_data()
+    dw = df_no_mod_2022
     
     par(mfrow = c(3, 3))
     

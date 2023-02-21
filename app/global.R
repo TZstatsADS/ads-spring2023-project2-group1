@@ -14,9 +14,9 @@ if (!require("janitor")) {
 current_path = rstudioapi::getActiveDocumentContext()$path 
 setwd(dirname(current_path ))
 
-df <- read_csv("../data/DOHMH_New_York_City_Restaurant_Inspection_Results.csv")
+df_ori <- read.csv("../data/DOHMH_New_York_City_Restaurant_Inspection_Results.csv")
 
-df <- df %>%
+df <- df_ori %>%
   clean_names()
 
 df$inspection_date <- as.POSIXct(df$inspection_date, format = "%m/%d/%Y")
@@ -24,6 +24,8 @@ df$inspection_year <- as.numeric(format(df$inspection_date, format = "%Y"))
 df <- df[!(is.na(df$latitude) | df$latitude=="" | df$latitude==0 | is.na(df$longitude) | df$longitude=="") | df$longitude==0 , ]
 
 df_no_mod <- df
+
+df_barchart <- df_ori
 
 df = sqldf("
           select

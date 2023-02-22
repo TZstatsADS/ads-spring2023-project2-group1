@@ -43,6 +43,10 @@ if (!require("lubridate")) {
   install.packages("lubridate")
   library(lubridate)
 }
+if (!require("viridis")) {
+  install.packages("viridis")
+  library(viridis)
+}
 
 ###############################Load The Data #######################
 
@@ -161,6 +165,7 @@ ui <- fluidPage(
                sidebarPanel(
                  h1("Inspections on Restaurants by borough and Cuisine Type"),
                  p("Recent news has come out that the government is ramping up restaurant inspections in NYC with the city council passing a bill to ensure food delivery apps display accurate health inspection grades. You can see the impact of this policy through the increase in number of inspections in recent years (including some pandemic disruptions)."),
+                 p("Additionally, there is a trend that inspections are getting more stringent over time, with average scores getting higher (the lower the score the better the grade) and fewer restaurants getting the 'A' designation."),
                  selectInput(inputId = "borough", label = "Select borough:",
                              choices = c("Manhattan", "Bronx", "Brooklyn", "Queens", "Staten Island"),
                              selected = "Manhattan",
@@ -198,7 +203,7 @@ ui <- fluidPage(
                  selectInput(
                    inputId = "grade",
                    label = "Inspection Grade:",
-                   choices = c("A", "B", "C", "P","Z","N"),
+                   choices = c("A", "B", "C", "P","Z","N","N/A"),
                    selected = 'A',
                    multiple = TRUE),
                  selectInput(
@@ -478,6 +483,7 @@ server <- function(input, output) {
             geom_bar(stat = 'identity', position = 'fill') +
             labs(x = 'Year',y = 'Share', title = paste('Share of Restaurant Grade')) +
             coord_flip()+
+            scale_fill_manual(name = "grade", values=c("#18bc9c","#706C61","#5A564E","#47453E","#34332E","#201F1C"))+
             theme(legend.position="right", 
                   legend.title=element_blank(),
                   axis.text=element_text(size=14),
@@ -491,6 +497,7 @@ server <- function(input, output) {
             geom_line(size = 1) +
             geom_point(size = 2) +
             labs(x = 'Year',y = 'Average Score', title = paste('Average Score of Restaurants (Lower score = Higher Grade)')) +
+            scale_color_manual(name = "cuisine_description", values=c("#18bc9c","#706C61","#98838F","#89A6FB","#78C3FB"))+
             theme(legend.position="right", 
                   legend.title=element_blank(),
                   axis.text=element_text(size=14),

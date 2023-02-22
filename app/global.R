@@ -133,7 +133,7 @@ df_clean = sqldf("
           when grade like '%P%' then 'P'
           when grade like '%Z%' then 'Z'
           when grade like '%N%' then 'N'
-          else grade end grade
+          else 'N/A' end grade
           , latitude
           , longitude
           from df_temp

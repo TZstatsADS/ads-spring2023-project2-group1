@@ -71,6 +71,31 @@ if (!require("shinythemes")) {
   install.packages("shinythemes")
   library(shinythemes)
 }
+
+if (!require("shiny")) {
+  install.packages("shiny")
+  library(shiny)
+}
+
+if (!require("ggplot2")) {
+  install.packages("ggplot2")
+  library(ggplot2)
+}
+
+if (!require("magrittr")) {
+  install.packages("magrittr")
+  library(magrittr)
+}
+
+if (!require("dplyr")) {
+  install.packages("dplyr")
+  library(dplyr)
+}
+
+if (!require("lubridate")) {
+  install.packages("lubridate")
+  library(lubridate)
+}
 ###############################Load The Data #######################
 
 current_path = rstudioapi::getActiveDocumentContext()$path 
@@ -191,33 +216,7 @@ ui <- fluidPage(
                )
              )),
     
-    if (!require("shiny")) {
-  install.packages("shiny")
-  library(shiny)
-}
 
-if (!require("ggplot2")) {
-  install.packages("ggplot2")
-  library(ggplot2)
-}
-
-if (!require("magrittr")) {
-  install.packages("magrittr")
-  library(magrittr)
-}
-
-if (!require("dplyr")) {
-  install.packages("dplyr")
-  library(dplyr)
-}
-
-if (!require("lubridate")) {
-  install.packages("lubridate")
-  library(lubridate)
-}
-
-
-data = read.csv("C:/Users/A L I E N W A R E/Downloads/DOHMH_New_York_City_Restaurant_Inspection_Results.csv")
 
 data_filter = data %>% 
   filter(!is.na(SCORE), GRADE != '') %>% 

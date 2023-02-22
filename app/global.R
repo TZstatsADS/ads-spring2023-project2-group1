@@ -15,13 +15,14 @@ if (!require("httr")) {
   library(httr)
 }
 
-
 monthStart <- function(x) {
   x <- as.POSIXlt(x)
   x$mday <- 1
   as.Date(x)
 }
 
+# current_path = rstudioapi::getActiveDocumentContext()$path
+# setwd(dirname(current_path ))
 # df_ori <- read.csv("../data/DOHMH_New_York_City_Restaurant_Inspection_Results.csv")
 # 
 # df <- df_ori %>%
@@ -34,7 +35,7 @@ monthStart <- function(x) {
 # 
 # save(df, file = "NYC_Restaurant_a.RData", compress = TRUE)
 
-df <- load("NYC_Restaurant_a.RData")
+df1 <- load("NYC_Restaurant_a.RData")
 df_no_mod <- df
 
 df = sqldf("

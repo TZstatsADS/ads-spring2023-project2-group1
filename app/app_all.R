@@ -71,31 +71,6 @@ if (!require("shinythemes")) {
   install.packages("shinythemes")
   library(shinythemes)
 }
-
-if (!require("shiny")) {
-  install.packages("shiny")
-  library(shiny)
-}
-
-if (!require("ggplot2")) {
-  install.packages("ggplot2")
-  library(ggplot2)
-}
-
-if (!require("magrittr")) {
-  install.packages("magrittr")
-  library(magrittr)
-}
-
-if (!require("dplyr")) {
-  install.packages("dplyr")
-  library(dplyr)
-}
-
-if (!require("lubridate")) {
-  install.packages("lubridate")
-  library(lubridate)
-}
 ###############################Load The Data #######################
 
 current_path = rstudioapi::getActiveDocumentContext()$path 
@@ -193,13 +168,12 @@ ui <- fluidPage(
              h1("About The App"),
              p("Eating healthy isn't about eating more or eating less, it's about eating right! Our restaurant guide will give you a rundown of all the hygiene practices and things 'to know and beware of', before visiting restaurants in the city. The information we present is brought to you by inspections conducted by the Department of Health and Mental Hygiene. We care for where you eat!"),
              p("We'll give you the scoop on the number of restaurants with grade A, B, C, and beyond (because let's face it, sometimes a C is just a fancy way of saying 'gross')."),
-             mainPanel(plotOutput(outputId = "plot1"), 
+             mainPanel(plotOutput(outputId = "plot1"),
                        plotOutput(outputId = "plot2")),
              p("D: This designation is given to restaurants that have a number of violations that pose a public health hazard."),
              p("N: This designation is given to restaurants that have violations that are not considered to be a public health hazard."),
              p("P: This designation is given to restaurants that are in the process of re-opening after being closed for health code violations."),
              p("Z: This designation is given to restaurants that have not yet been inspected.")
-             
              
     )
     ,
@@ -270,8 +244,6 @@ ui <- fluidPage(
     )
   )
 )
-
-    
 
 
 ###############################Define Server #######################

@@ -22,16 +22,19 @@ monthStart <- function(x) {
   as.Date(x)
 }
 
-df_ori <- read.csv("../data/DOHMH_New_York_City_Restaurant_Inspection_Results.csv")
+# df_ori <- read.csv("../data/DOHMH_New_York_City_Restaurant_Inspection_Results.csv")
+# 
+# df <- df_ori %>%
+#   clean_names()
+# 
+# df$inspection_date <- as.POSIXct(df$inspection_date, format = "%m/%d/%Y")
+# df$inspection_year <- as.numeric(format(df$inspection_date, format = "%Y"))
+# df <- df[!(is.na(df$latitude) | df$latitude=="" | df$latitude==0 | is.na(df$longitude) | df$longitude=="") | df$longitude==0 , ]
+# df$inspection_month <- monthStart(df$inspection_date)
+# 
+# save(df, file = "NYC_Restaurant_a.RData", compress = TRUE)
 
-df <- df_ori %>%
-  clean_names()
-
-df$inspection_date <- as.POSIXct(df$inspection_date, format = "%m/%d/%Y")
-df$inspection_year <- as.numeric(format(df$inspection_date, format = "%Y"))
-df <- df[!(is.na(df$latitude) | df$latitude=="" | df$latitude==0 | is.na(df$longitude) | df$longitude=="") | df$longitude==0 , ]
-df$inspection_month <- monthStart(df$inspection_date)
-
+df <- load("NYC_Restaurant_a.RData")
 df_no_mod <- df
 
 df = sqldf("

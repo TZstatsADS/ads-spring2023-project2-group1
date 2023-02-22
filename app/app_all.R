@@ -162,40 +162,40 @@ ui <- fluidPage(
   tabsetPanel(
     id = "tabs",
     type = "pills",
-    
+
     # Tab 1
     tabPanel("Introduction", value = "Introduction",
-             h1("Introduction"),
+             h1("About The App"),
              p("Eating healthy isn't about eating more or eating less, it's about eating right! Our restaurant guide will give you a rundown of all the hygiene practices and things 'to know and beware of', before visiting restaurants in the city. The information we present is brought to you by inspections conducted by the Department of Health and Mental Hygiene. We care for where you eat!"),
-               mainPanel(
-                 plotOutput(outputId = "plot1"),
-                 plotOutput(outputId = "plot2")
-               )
-             
-    ),
+             mainPanel(plotOutput(outputId = "plot1"),
+                       plotOutput(outputId = "plot2"))
+    )
+    ,
     
     # Tab 2
     tabPanel("Government Initiatives", value = "Government Initiatives",
              h1("Inspections on Restaurants by Borough and Cuisine Type"),
-             p("This is the government initiatives tab. Here you can discuss any related government programs, policies, or initiatives."),
+             p("With recent news about the government ramping up restaurant inspections in NYC and the city council passing a bill to ensure food delivery apps display accurate health inspection grades, our app provides the number of inspections from 2019 to 2022. Plus, the Health Department's new letter grading system, which includes an 'A+' grade for restaurants with no violations in the past year, makes it even easier to find the cleanest eateries around."),
+    
              sidebarLayout(
                sidebarPanel(
-                 selectInput(inputId = "borough", label = "Choose a borough:",
+                 selectInput(inputId = "borough", label = "Select Borough:",
                              choices = c("Manhattan", "Bronx", "Brooklyn", "Queens", "Staten Island")),
-                 selectInput(inputId = "cursine_type", label = "Choose a cursine type:",
+                 selectInput(inputId = "cursine_type", label = "Select Cuisine Type:",
                              choices = c("Chinese", "American", "Italian", "Japanese","Korean")),
                ),
                mainPanel(
                  plotOutput(outputId = "Plot3"),
                  plotOutput(outputId = "Plot4")
                )
-             )),
-    
+             )
+    ),
     
     
     # Tab 3
     tabPanel("The Results", value = "The Results",
-             h1("The Results"),
+             h1("Exploring the City's Cuisine with Confidence"),
+             p("Hungry in the city that never sleeps? Now you can make informed decisions about where to eat, hygiene wise. Don't be fooled by those fancy menus and dim lighting – we'll tell you which places have the squeakiest clean kitchens and which to avoid like the plague (or, you know, food poisoning). Whether you're a seasoned foodie or just looking for a quick bite, this page is the perfect companion for any hungry adventurer. Let's explore the city one meal at a time!"),
              sidebarLayout(
                sidebarPanel(
                  selectInput("boro", "Select Borough:", 

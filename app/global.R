@@ -10,9 +10,11 @@ if (!require("janitor")) {
   install.packages("janitor")
   library(janitor)
 }
+if (!require("httr")) {
+  install.packages("httr")
+  library(httr)
+}
 
-current_path = rstudioapi::getActiveDocumentContext()$path 
-setwd(dirname(current_path ))
 
 monthStart <- function(x) {
   x <- as.POSIXlt(x)

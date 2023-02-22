@@ -1,4 +1,8 @@
 ###############################Install Related Packages #######################
+if (!require("terra")) {
+  install.packages("terra")
+  library(terra)
+}
 if (!require("shiny")) {
   install.packages("shiny")
   library(shiny)
@@ -7,33 +11,13 @@ if (!require("leaflet")) {
   install.packages("leaflet")
   library(leaflet)
 }
-if (!require("leaflet.extras")) {
-  install.packages("leaflet.extras")
-  library(leaflet.extras)
-}
 if (!require("dplyr")) {
   install.packages("dplyr")
   library(dplyr)
 }
-if (!require("magrittr")) {
-  install.packages("magrittr")
-  library(magrittr) 
-}
-if (!require("leafsync")) {
-  install.packages("leafsync")
-  library(leafsync)
-}
-if (!require("shinydashboard")) {
-  install.packages("shinydashboard")
-  library(shinydashboard)
-}
 if (!require("ggplot2")) {
   install.packages("ggplot2")
   library(ggplot2)
-}
-if (!require("reshape2")) {
-  install.packages("reshape2")
-  library(reshape2)
 }
 if (!require("tidytext")) {
   install.packages("tidytext")
@@ -43,10 +27,6 @@ if (!require("tidyverse")) {
   install.packages("tidyverse")
   library(tidyverse)
 }
-if (!require("tm")) {
-  install.packages("tm")
-  library(tm)
-}
 if (!require("wordcloud")) {
   install.packages("wordcloud")
   library(wordcloud)
@@ -55,26 +35,17 @@ if (!require("stringr")) {
   install.packages("stringr")
   library(stringr)
 }
-if (!require("repr")) {
-  install.packages("repr")
-  library(repr)
-}
-if (!require("magrittr")) {
-  install.packages("magrittr")
-  library(magrittr)
+if (!require("shinythemes")) {
+  install.packages("shinythemes")
+  library(shinythemes)
 }
 if (!require("lubridate")) {
   install.packages("lubridate")
   library(lubridate)
 }
-if (!require("shinythemes")) {
-  install.packages("shinythemes")
-  library(shinythemes)
-}
+
 ###############################Load The Data #######################
 
-current_path = rstudioapi::getActiveDocumentContext()$path 
-setwd(dirname(current_path ))
 source('global.R')
 
 #Data Prepocessing
@@ -91,7 +62,6 @@ df_barchart <- filter(df_unique,inspection_year %in% c(2019,2020,2021,2022))
 '%like%' <- function(x, pattern) {
   grepl(pattern, x, ignore.case = TRUE)
 }
-
 
 
 ###############################Define UI #######################
@@ -344,6 +314,7 @@ server <- function(input, output) {
     wordcloud(words = wc_data1$word, freq = wc_data1$n,scale = c(5,0.5),max.words = 50,rot.per = 0, colors="grey50")
     
 })
+  #Render Barcharts
   
   borough_data3 <- reactive({
     data = df_barchart %>% filter(boro %in% input$borough, cuisine_description %in% input$cuisine)

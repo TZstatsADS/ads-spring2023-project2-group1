@@ -228,8 +228,8 @@ ui <- fluidPage(
                  selectInput(
                    inputId = "grade",
                    label = "Inspection Grade:",
-                   choices = unique(df$grade),
-                   selected = 'C',
+                   choices = c("A", "B", "C", "P","Z","N"),
+                   selected = 'A',
                    multiple = TRUE),
                  selectInput(
                    inputId = "viol",

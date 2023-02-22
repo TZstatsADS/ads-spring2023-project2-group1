@@ -140,7 +140,7 @@ ui <- fluidPage(
                sidebarPanel(
                  h1("About The App"),
                  p("Eating healthy isn't about eating more or eating less, it's about eating right! Our restaurant guide will give you a rundown of what to know and be aware of before visiting restaurants in the city. The information we present is brought to you from inspections conducted by the Department of Health and Mental Hygiene. We care for where you eat!"),
-                 p("We'll give you the scoop on the number of restaurants with grade A, B, C, and beyond (because let's face it, sometimes a C is just a fancy way of saying 'gross')."),
+                 p("We'll give you the scoop on the number of restaurants with grade A, B, C, and beyond (because let's face it, sometimes a C is just a fancy way of saying 'gross'), as well as some of the violations that happen across your favourite restaurants."),
                  p("N: This designation is given to restaurants that have violations that are not considered to be a public health hazard."),
                  p("P: This designation is given to restaurants that are in the process of re-opening after being closed for health code violations."),
                  p("Z: This designation is given to restaurants that have not yet been inspected."),
@@ -172,8 +172,8 @@ ui <- fluidPage(
                ),
                mainPanel(
                  plotOutput(outputId = "Plot3"),
-                 plotOutput(outputId = "Plot4"),
-                 plotOutput(outputId = "Plot5")
+                 plotOutput(outputId = "Plot5"),
+                 plotOutput(outputId = "Plot4")
                )
              )
     ),
@@ -301,8 +301,15 @@ server <- function(input, output) {
   
   #Render Worldcloud
   output$plot2=renderPlot({
+    dw = df_no_mod_2022
+    
+    par(mfrow = c(3, 3), mar = c(1, 1, 1, 1))
 
-    df1<-df_no_mod_2022
+    
+    #Filtering
+    
+    df1<-dw |>
+      filter(violation_code=="02B")
     wc_data1 = 
       df1 |>
       unnest_tokens(output = word, input = violation_description)|>
@@ -311,9 +318,104 @@ server <- function(input, output) {
       summarize(n = n())|>
       ungroup()|>
       arrange(desc(n))
-    wordcloud(words = wc_data1$word, freq = wc_data1$n,scale = c(5,0.5),max.words = 50,rot.per = 0, colors="grey50")
+    wordcloud(words = wc_data1$word, freq = wc_data1$n,scale = c(2,0.5),max.words = 10,rot.per = 0, colors="grey50")
     
-})
+    df2<-dw |>
+      filter(violation_code=="02G")
+    wc_data2 = 
+      df2 |>
+      unnest_tokens(output = word, input = violation_description)|>
+      anti_join(y = stop_words)|>
+      group_by(word)|>
+      summarize(n = n())|>
+      ungroup()|>
+      arrange(desc(n))
+    wordcloud(words = wc_data2$word, freq = wc_data2$n,scale = c(2,0.5),max.words = 10,rot.per = 0, colors="grey50")
+    
+    df3<-dw |>
+      filter(violation_code=="04L")
+    wc_data3 = 
+      df3 |>
+      unnest_tokens(output = word, input = violation_description)|>
+      anti_join(y = stop_words)|>
+      group_by(word)|>
+      summarize(n = n())|>
+      ungroup()|>
+      arrange(desc(n))
+    wordcloud(words = wc_data3$word, freq = wc_data3$n,scale = c(2,0.5),max.words = 10,rot.per = 0, colors="grey50")
+    
+    df4<-dw |>
+      filter(violation_code=="04N")
+    wc_data4 = 
+      df4 |>
+      unnest_tokens(output = word, input = violation_description)|>
+      anti_join(y = stop_words)|>
+      group_by(word)|>
+      summarize(n = n())|>
+      ungroup()|>
+      arrange(desc(n))
+    wordcloud(words = wc_data4$word, freq = wc_data4$n,scale = c(2,0.5),max.words = 10,rot.per = 0, colors="grey50")
+    
+    df5<-dw |>
+      filter(violation_code=="06C")
+    wc_data5 = 
+      df5 |>
+      unnest_tokens(output = word, input = violation_description)|>
+      anti_join(y = stop_words)|>
+      group_by(word)|>
+      summarize(n = n())|>
+      ungroup()|>
+      arrange(desc(n))
+    wordcloud(words = wc_data5$word, freq = wc_data5$n,scale = c(2,0.5),max.words = 10,rot.per = 0, colors="grey50")
+    
+    df6<-dw |>
+      filter(violation_code=="06D")
+    wc_data6 = 
+      df6 |>
+      unnest_tokens(output = word, input = violation_description)|>
+      anti_join(y = stop_words)|>
+      group_by(word)|>
+      summarize(n = n())|>
+      ungroup()|>
+      arrange(desc(n))
+    wordcloud(words = wc_data6$word, freq = wc_data6$n,scale = c(2,0.5),max.words = 10,rot.per = 0, colors="grey50")
+    
+    df7<-dw |>
+      filter(violation_code=="08A")
+    wc_data7 = 
+      df7 |>
+      unnest_tokens(output = word, input = violation_description)|>
+      anti_join(y = stop_words)|>
+      group_by(word)|>
+      summarize(n = n())|>
+      ungroup()|>
+      arrange(desc(n))
+    wordcloud(words = wc_data7$word, freq = wc_data7$n,scale = c(2,0.5),max.words = 10,rot.per = 0, colors="grey50")
+    
+    df8<-dw |>
+      filter(violation_code=="10B")
+    wc_data8 = 
+      df8 |>
+      unnest_tokens(output = word, input = violation_description)|>
+      anti_join(y = stop_words)|>
+      group_by(word)|>
+      summarize(n = n())|>
+      ungroup()|>
+      arrange(desc(n))
+    wordcloud(words = wc_data8$word, freq = wc_data8$n,scale = c(2,0.5),max.words = 10,rot.per = 0, colors="grey50")
+    
+    df9<-dw |>
+      filter(violation_code=="10F")
+    wc_data9 = 
+      df9 |>
+      unnest_tokens(output = word, input = violation_description)|>
+      anti_join(y = stop_words)|>
+      group_by(word)|>
+      summarize(n = n())|>
+      ungroup()|>
+      arrange(desc(n))
+    wordcloud(words = wc_data9$word, freq = wc_data9$n,scale = c(2,0.5),max.words = 10,rot.per = 0, colors="grey50")    
+      })
   #Render Barcharts
   
   borough_data3 <- reactive({
@@ -388,7 +490,7 @@ server <- function(input, output) {
     print(ggplot(data5,aes(x = inspection_year, y = avg_score, group = cuisine_description, color=cuisine_description)) +
             geom_line(size = 1) +
             geom_point(size = 2) +
-            labs(x = 'Year',y = 'Average Score', title = paste('Average Score of Restaurants')) +
+            labs(x = 'Year',y = 'Average Score', title = paste('Average Score of Restaurants (Lower score = Higher Grade)')) +
             theme(legend.position="right", 
                   legend.title=element_blank(),
                   axis.text=element_text(size=14),

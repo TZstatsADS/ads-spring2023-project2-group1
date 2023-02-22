@@ -9,6 +9,10 @@ The Department of Health and Mental Hygiene (DOHMH) conducts regular inspections
 
 <img src="doc/Intro.png" width="700">
 
+<img src="doc/Initiatives.png" width="700">
+
+<img src="doc/Results.png" width="700">
+
 Created to fulfill the requirements of project 2 for the GR5243 course  (Spring 2023 term). The project guidelines can be found [here](doc/project2_desc.md).
 
 + **Project title**: Everything Good and Healthy in NYC

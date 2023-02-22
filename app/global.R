@@ -14,6 +14,12 @@ if (!require("janitor")) {
 current_path = rstudioapi::getActiveDocumentContext()$path 
 setwd(dirname(current_path ))
 
+monthStart <- function(x) {
+  x <- as.POSIXlt(x)
+  x$mday <- 1
+  as.Date(x)
+}
+
 df_ori <- read.csv("../data/DOHMH_New_York_City_Restaurant_Inspection_Results.csv")
 
 df <- df_ori %>%
@@ -22,10 +28,9 @@ df <- df_ori %>%
 df$inspection_date <- as.POSIXct(df$inspection_date, format = "%m/%d/%Y")
 df$inspection_year <- as.numeric(format(df$inspection_date, format = "%Y"))
 df <- df[!(is.na(df$latitude) | df$latitude=="" | df$latitude==0 | is.na(df$longitude) | df$longitude=="") | df$longitude==0 , ]
+df$inspection_month <- monthStart(df$inspection_date)
 
 df_no_mod <- df
-
-df_barchart <- df_ori
 
 df = sqldf("
           select
@@ -38,10 +43,12 @@ df = sqldf("
           , phone
           , cuisine_description
           , inspection_date
+          , inspection_month
           , inspection_year
           , action
           , violation_code
           , violation_description
+          , score
           , case 
           when action = 'No violations were recorded at the time of this inspection.' then 'No Violation'
           when action = '' then 'No Violation'
@@ -51,7 +58,6 @@ df = sqldf("
           else critical_flag
           end violation_type
           , critical_flag
-          , score
           , case when grade is null then 'N/A' else grade end grade
           , latitude
           , longitude
@@ -69,8 +75,10 @@ df_temp = sqldf("
           , phone
           , cuisine_description
           , inspection_date
+          , inspection_month
           , inspection_year
           , group_concat(violation_description) violation_description
+          , sum(score) scores
           , group_concat(violation_type) violation_type
           , group_concat(grade) grade
           , latitude
@@ -85,6 +93,7 @@ df_temp = sqldf("
           , phone
           , cuisine_description
           , inspection_date
+          , inspection_month
           , inspection_year 
           , latitude
           , longitude
@@ -101,8 +110,10 @@ df_clean = sqldf("
           , phone
           , cuisine_description
           , inspection_date
+          , inspection_month
           , inspection_year
           , violation_description
+          , scores as score
           , case
           when violation_type like '%XX%' then 'Critical'
           when violation_type like '%YY%' then 'Not-Critical'

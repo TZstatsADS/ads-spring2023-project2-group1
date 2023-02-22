@@ -17,7 +17,7 @@ if (!require("dplyr")) {
 }
 if (!require("magrittr")) {
   install.packages("magrittr")
-  library(magrittr)
+  library(magrittr) 
 }
 if (!require("leafsync")) {
   install.packages("leafsync")
@@ -63,11 +63,14 @@ if (!require("magrittr")) {
   install.packages("magrittr")
   library(magrittr)
 }
-
-
-
-
-
+if (!require("lubridate")) {
+  install.packages("lubridate")
+  library(lubridate)
+}
+if (!require("shinythemes")) {
+  install.packages("shinythemes")
+  library(shinythemes)
+}
 ###############################Load The Data #######################
 
 current_path = rstudioapi::getActiveDocumentContext()$path 
@@ -83,14 +86,19 @@ year_options = c(2016, 2017,
 df <- filter(df_unique,inspection_year %in% year_options)
 df_no_mod_2022 <- filter(df_no_mod, inspection_year==2022)
 df_unique_2022 <- filter(df_unique, inspection_year==2022)
+df_barchart <- filter(df_unique,inspection_year %in% c(2019,2020,2021,2022))
 
 '%like%' <- function(x, pattern) {
   grepl(pattern, x, ignore.case = TRUE)
 }
 
+
+
 ###############################Define UI #######################
 
 ui <- fluidPage(
+  theme = shinytheme("flatly"), # Apply the Flatly theme
+  
   tags$head(
     tags$link(rel = "stylesheet", href = "https://fonts.googleapis.com/css2?family=Roboto&display=swap"),
     tags$style(HTML("
@@ -98,30 +106,34 @@ ui <- fluidPage(
         font-family: 'Roboto', sans-serif;
         font-size: 14px;
       }
-      .navbar-default {
-        background-color: #f5f5f5;
+      .navbar {
+        background-color: #fff;
+        border: none;
       }
-      .nav-link {
-        color: #333333;
+      .navbar-brand, .navbar-nav li a {
+        color: #333;
         font-weight: bold;
       }
       .nav-link:hover, .nav-link:focus {
         color: #7fad39;
       }
       .tab-content {
-        background-color: #f9f9f9;
-        border: 1px solid #dddddd;
+        background-color: #fff;
+        border: none;
         padding: 20px;
         border-radius: 5px;
+        box-shadow: 0px 0px 8px rgba(0, 0, 0, 0.1);
       }
       h1 {
         margin-top: 0;
         margin-bottom: 20px;
         font-size: 24px;
         font-weight: bold;
+        color: #333;
       }
       p {
         margin-bottom: 20px;
+        color: #333;
       }
       .form-control {
         font-size: 14px;
@@ -145,39 +157,68 @@ ui <- fluidPage(
       }
     "))
   ),
+  
   titlePanel("Everything Good and Healthy in NYC"),
+  
   tabsetPanel(
+    id = "tabs",
+    type = "pills",
     
     # Tab 1
     tabPanel("Introduction", value = "Introduction",
-             h1("Introduction"),
-             p("This is the introduction tab. Here you can provide some background or context for your app.")
+             sidebarLayout(
+               sidebarPanel(
+                 h1("About The App"),
+                 p("Eating healthy isn't about eating more or eating less, it's about eating right! Our restaurant guide will give you a rundown of what to know and be aware of before visiting restaurants in the city. The information we present is brought to you from inspections conducted by the Department of Health and Mental Hygiene. We care for where you eat!"),
+                 p("We'll give you the scoop on the number of restaurants with grade A, B, C, and beyond (because let's face it, sometimes a C is just a fancy way of saying 'gross')."),
+                 p("N: This designation is given to restaurants that have violations that are not considered to be a public health hazard."),
+                 p("P: This designation is given to restaurants that are in the process of re-opening after being closed for health code violations."),
+                 p("Z: This designation is given to restaurants that have not yet been inspected."),
+                 p("For more information about grade designations, check out DOHMH's document", tags$a("here", href = "https://www1.nyc.gov/assets/doh/downloads/pdf/rii/blue-book.pdf"), ".")
+               ),
+               mainPanel(
+                 fluidRow(
+                   column(width = 6, plotOutput(outputId = "plot1")),
+                   column(width = 6, plotOutput(outputId = "plot2"))
+                 )
+               )
+             )
     ),
     
     # Tab 2
     tabPanel("Government Initiatives", value = "Government Initiatives",
-             h1("Government Initiatives"),
-             p("Most inspections in 2022 resulted in an A grade, but plenty of violations still happened, and we can see the most common keywords that show up."),
              sidebarLayout(
                sidebarPanel(
-                 selectInput(inputId = "borough",
-                             label = "Choose a borough:",
-                             choices = c("Manhattan", "Brooklyn",
-                                         "Staten Island", "Queens",
-                                         "Bronx"))
+                 h1("Inspections on Restaurants by borough and Cuisine Type"),
+                 p("Recent news has come out that the government is ramping up restaurant inspections in NYC with the city council passing a bill to ensure food delivery apps display accurate health inspection grades. You can see the impact of this policy through the increase in number of inspections in recent years (including some pandemic disruptions)."),
+                 selectInput(inputId = "borough", label = "Select borough:",
+                             choices = c("Manhattan", "Bronx", "Brooklyn", "Queens", "Staten Island"),
+                             selected = "Manhattan",
+                             multiple = TRUE),
+                 selectInput(inputId = "cursine_type", label = "Select Cuisine Type:",
+                             choices = c("Chinese", "American", "Italian", "Japanese","Korean"),
+                             selected = "Chinese",
+                             multiple = TRUE),
                ),
                mainPanel(
-                 plotOutput(outputId = "plot1"),
-                 plotOutput(outputId = "plot2")
+                 plotOutput(outputId = "Plot3"),
+                 splitLayout(cellWidths = c("50%", "50%"), 
+                             leafletOutput("Plot4",width="100%"),
+                             leafletOutput("Plot5",width="100%"))
+                 # plotOutput(outputId = "Plot4")
+                 # column(plotOutput(outputId = "plot2"))
                )
-             )),
+             )
+    ),
     
+ 
     # Tab 3
     tabPanel("The Results", value = "The Results",
-             h1("The Results"),
              sidebarLayout(
                sidebarPanel(
-                 selectInput("boro", "Select Borough:", 
+                 h1("Exploring the City's Cuisine with Confidence"),
+                 p("Hungry in the city that never sleeps? Now you can make informed decisions about where to eat, hygiene wise. Don't be fooled by those fancy menus and dim lighting – we'll tell you which places have the squeakiest clean kitchens and which to avoid like the plague (or, you know, food poisoning). Whether you're a seasoned foodie or just looking for a quick bite, this page is the perfect companion for any hungry adventurer. Let's explore the city one meal at a time!"),
+                 selectInput("boro", "Select borough:", 
                              choices = unique(df$boro),
                              selected = 'Manhattan',
                              multiple = TRUE),
@@ -210,7 +251,7 @@ ui <- fluidPage(
                  actionButton("search", "Search", class = "btn btn-success btn-block")
                ),
                mainPanel(
-                 leafletOutput("map", width = "100%", height = "590px"),
+                 leafletOutput("map", width = "100%", height = "835px"),
                  div(id = "result-table")
                )
              )
@@ -248,9 +289,6 @@ server <- function(input, output) {
   colors_map <- c("No Violation" = "forestgreen", "Not-Critical" = "gold", "Critical" = "orange", "Not Applicable" = "grey")
   colors_2 <- c("forestgreen","gold", "orange", "grey")
   
-  colors_map <- c("No Violation" = "forestgreen", "Not-Critical" = "gold", "Critical" = "orange", "Not Applicable" = "grey")
-  colors_2 <- c("forestgreen","gold", "orange", "grey")
-  
   # Render map
   output$map <- renderLeaflet({
     leaflet(filtered_data()) %>%
@@ -281,33 +319,29 @@ server <- function(input, output) {
   })
   
   #Render Barplot
-  
-  da <- df_no_mod_2022
-  borough_data <- reactive({
-    da<-da %>% filter(da$boro %in% input$borough)
-  })
-  plot_data <- reactive({
-    df_unique_2022<-df_unique_2022 %>% filter(df_unique_2022$boro %in% input$borough)
-  })
-  
   output$plot1=renderPlot({
-    data2 = plot_data()
-    ggplot(data2, aes(x = factor(grade)))+  
-      geom_bar(width = 0.9) + coord_flip() +
-      scale_x_discrete(labels = function(x) str_wrap(x, width = 200))
+    data2 = df_unique_2022 %>% filter(df_unique_2022$grade=='A' | df_unique_2022$grade=='B' |df_unique_2022$grade=='C' | df_unique_2022$grade=='N' | df_unique_2022$grade=='P' | df_unique_2022$grade=='Z')
+    ggplot(data2, aes(x = factor(grade), fill=factor(ifelse(grade=="A","Restaurants with Grade A","Restaurants without Grade A"))))+  
+      geom_bar(width = 0.7) + 
+      scale_x_discrete(labels = function(x) str_wrap(x, width = 200))+
+      labs(title="Number of Restaurants by Grade (2022)",x="Grade",y="Count of Restaurant")+
+      scale_fill_manual(name = "grade", values=c("#18bc9c","grey")) +
+      theme(legend.position = "none",
+            axis.text=element_text(size=14),
+            axis.title=element_text(size=14,face="bold"),
+            plot.title = element_text(size=16, face="bold"))
   })
   
   #Render Worldcloud
-  
   output$plot2=renderPlot({
-    dw = borough_data()
+    dw = df_no_mod_2022
     
-    par(mfrow = c(3, 3))
+    # par(mfrow = c(3, 3))
     
     #Filtering
     
-    df1<-dw |>
-      filter(violation_code=="02B")
+    df1<-dw
+      # filter(violation_code=="02B")
     wc_data1 = 
       df1 |>
       unnest_tokens(output = word, input = violation_description)|>
@@ -316,104 +350,274 @@ server <- function(input, output) {
       summarize(n = n())|>
       ungroup()|>
       arrange(desc(n))
-    wordcloud(words = wc_data1$word, freq = wc_data1$n,scale = c(2,0.5),max.words = 200,rot.per = 0)
+    wordcloud(words = wc_data1$word, freq = wc_data1$n,scale = c(5,0.5),max.words = 50,rot.per = 0, colors="grey50")
     
-    df2<-dw |>
-      filter(violation_code=="02G")
-    wc_data2 = 
-      df2 |>
-      unnest_tokens(output = word, input = violation_description)|>
-      anti_join(y = stop_words)|>
-      group_by(word)|>
-      summarize(n = n())|>
-      ungroup()|>
-      arrange(desc(n))
-    wordcloud(words = wc_data2$word, freq = wc_data2$n,scale = c(2,0.5),max.words = 200,rot.per = 0)
-    
-    df3<-dw |>
-      filter(violation_code=="04L")
-    wc_data3 = 
-      df3 |>
-      unnest_tokens(output = word, input = violation_description)|>
-      anti_join(y = stop_words)|>
-      group_by(word)|>
-      summarize(n = n())|>
-      ungroup()|>
-      arrange(desc(n))
-    wordcloud(words = wc_data3$word, freq = wc_data3$n,scale = c(2,0.5),max.words = 200,rot.per = 0)
-    
-    df4<-dw |>
-      filter(violation_code=="04N")
-    wc_data4 = 
-      df4 |>
-      unnest_tokens(output = word, input = violation_description)|>
-      anti_join(y = stop_words)|>
-      group_by(word)|>
-      summarize(n = n())|>
-      ungroup()|>
-      arrange(desc(n))
-    wordcloud(words = wc_data4$word, freq = wc_data4$n,scale = c(2,0.5),max.words = 200,rot.per = 0)
-    
-    df5<-dw |>
-      filter(violation_code=="06C")
-    wc_data5 = 
-      df5 |>
-      unnest_tokens(output = word, input = violation_description)|>
-      anti_join(y = stop_words)|>
-      group_by(word)|>
-      summarize(n = n())|>
-      ungroup()|>
-      arrange(desc(n))
-    wordcloud(words = wc_data5$word, freq = wc_data5$n,scale = c(2,0.5),max.words = 200,rot.per = 0)
-    
-    df6<-dw |>
-      filter(violation_code=="06D")
-    wc_data6 = 
-      df6 |>
-      unnest_tokens(output = word, input = violation_description)|>
-      anti_join(y = stop_words)|>
-      group_by(word)|>
-      summarize(n = n())|>
-      ungroup()|>
-      arrange(desc(n))
-    wordcloud(words = wc_data6$word, freq = wc_data6$n,scale = c(2,0.5),max.words = 200,rot.per = 0)
-    
-    df7<-dw |>
-      filter(violation_code=="08A")
-    wc_data7 = 
-      df7 |>
-      unnest_tokens(output = word, input = violation_description)|>
-      anti_join(y = stop_words)|>
-      group_by(word)|>
-      summarize(n = n())|>
-      ungroup()|>
-      arrange(desc(n))
-    wordcloud(words = wc_data7$word, freq = wc_data7$n,scale = c(2,0.5),max.words = 200,rot.per = 0)
-    
-    df8<-dw |>
-      filter(violation_code=="10B")
-    wc_data8 = 
-      df8 |>
-      unnest_tokens(output = word, input = violation_description)|>
-      anti_join(y = stop_words)|>
-      group_by(word)|>
-      summarize(n = n())|>
-      ungroup()|>
-      arrange(desc(n))
-    wordcloud(words = wc_data8$word, freq = wc_data8$n,scale = c(2,0.5),max.words = 200,rot.per = 0)
-    
-    df9<-dw |>
-      filter(violation_code=="10F")
-    wc_data9 = 
-      df9 |>
-      unnest_tokens(output = word, input = violation_description)|>
-      anti_join(y = stop_words)|>
-      group_by(word)|>
-      summarize(n = n())|>
-      ungroup()|>
-      arrange(desc(n))
-    wordcloud(words = wc_data9$word, freq = wc_data9$n,scale = c(2,0.5),max.words = 200,rot.per = 0)    
+    # df2<-dw |>
+    #   filter(violation_code=="02G")
+    # wc_data2 = 
+    #   df2 |>
+    #   unnest_tokens(output = word, input = violation_description)|>
+    #   anti_join(y = stop_words)|>
+    #   group_by(word)|>
+    #   summarize(n = n())|>
+    #   ungroup()|>
+    #   arrange(desc(n))
+    # wordcloud(words = wc_data2$word, freq = wc_data2$n,scale = c(2,0.5),max.words = 200,rot.per = 0, colors="grey50")
+    # 
+    # df3<-dw |>
+    #   filter(violation_code=="04L")
+    # wc_data3 = 
+    #   df3 |>
+    #   unnest_tokens(output = word, input = violation_description)|>
+    #   anti_join(y = stop_words)|>
+    #   group_by(word)|>
+    #   summarize(n = n())|>
+    #   ungroup()|>
+    #   arrange(desc(n))
+    # wordcloud(words = wc_data3$word, freq = wc_data3$n,scale = c(2,0.5),max.words = 200,rot.per = 0, colors="grey50")
+    # 
+    # df4<-dw |>
+    #   filter(violation_code=="04N")
+    # wc_data4 = 
+    #   df4 |>
+    #   unnest_tokens(output = word, input = violation_description)|>
+    #   anti_join(y = stop_words)|>
+    #   group_by(word)|>
+    #   summarize(n = n())|>
+    #   ungroup()|>
+    #   arrange(desc(n))
+    # wordcloud(words = wc_data4$word, freq = wc_data4$n,scale = c(2,0.5),max.words = 200,rot.per = 0, colors="grey50")
+    # 
+    # df5<-dw |>
+    #   filter(violation_code=="06C")
+    # wc_data5 = 
+    #   df5 |>
+    #   unnest_tokens(output = word, input = violation_description)|>
+    #   anti_join(y = stop_words)|>
+    #   group_by(word)|>
+    #   summarize(n = n())|>
+    #   ungroup()|>
+    #   arrange(desc(n))
+    # wordcloud(words = wc_data5$word, freq = wc_data5$n,scale = c(2,0.5),max.words = 200,rot.per = 0, colors="grey50")
+    # 
+    # df6<-dw |>
+    #   filter(violation_code=="06D")
+    # wc_data6 = 
+    #   df6 |>
+    #   unnest_tokens(output = word, input = violation_description)|>
+    #   anti_join(y = stop_words)|>
+    #   group_by(word)|>
+    #   summarize(n = n())|>
+    #   ungroup()|>
+    #   arrange(desc(n))
+    # wordcloud(words = wc_data6$word, freq = wc_data6$n,scale = c(2,0.5),max.words = 200,rot.per = 0, colors="grey50")
+    # 
+    # df7<-dw |>
+    #   filter(violation_code=="08A")
+    # wc_data7 = 
+    #   df7 |>
+    #   unnest_tokens(output = word, input = violation_description)|>
+    #   anti_join(y = stop_words)|>
+    #   group_by(word)|>
+    #   summarize(n = n())|>
+    #   ungroup()|>
+    #   arrange(desc(n))
+    # wordcloud(words = wc_data7$word, freq = wc_data7$n,scale = c(2,0.5),max.words = 200,rot.per = 0, colors="grey50")
+    # 
+    # df8<-dw |>
+    #   filter(violation_code=="10B")
+    # wc_data8 = 
+    #   df8 |>
+    #   unnest_tokens(output = word, input = violation_description)|>
+    #   anti_join(y = stop_words)|>
+    #   group_by(word)|>
+    #   summarize(n = n())|>
+    #   ungroup()|>
+    #   arrange(desc(n))
+    # wordcloud(words = wc_data8$word, freq = wc_data8$n,scale = c(2,0.5),max.words = 200,rot.per = 0, colors="grey50")
+    # 
+    # df9<-dw |>
+    #   filter(violation_code=="10F")
+    # wc_data9 = 
+    #   df9 |>
+    #   unnest_tokens(output = word, input = violation_description)|>
+    #   anti_join(y = stop_words)|>
+    #   group_by(word)|>
+    #   summarize(n = n())|>
+    #   ungroup()|>
+    #   arrange(desc(n))
+    # wordcloud(words = wc_data9$word, freq = wc_data9$n,scale = c(2,0.5),max.words = 200,rot.per = 0, colors="grey50")    
   })
+  
+  # Render Bar Chart
+  # ds = df_barchart
+  # ds = ds %>% filter(ds$cuisine_description =="Chinese"|ds$cuisine_description =="Korean"|ds$cuisine_description =="Japanese"|ds$cuisine_description =="American"|ds$cuisine_description =="Italian") %>% group_by(boro) %>% select(boro,inspection_month,cuisine_description)
+  # data1 <- count(ds %>% group_by(inspection_month) %>% filter(cuisine_description == "Korean"))
+  # data1 = data1 %>% arrange(mdy(data1$inspection_month))
+  # data1$inspection_month <- as.Date(data1$inspection_month, format="%m/%d/%Y")
+  
+  # Filter data based on user inputs
+  borough_data3 <- reactive({
+    # Filter by selected borough, inspection year, and violation type
+    data = count(df_barchart %>% group_by(inspection_month) %>% filter(boro %in% input$borough, cuisine_description %in% input$cursine))
+        data = data %>% arrange(mdy(data$inspection_month))
+        # data$inspection_month <- as.character(data$inspection_month)
+        data$inspection_month <- as.Date(paste0(data$inspection_month, "/01"), format="%m/%d/%Y")
+        data <- as.data.frame(data)
+        
+        #     data = count(ds %>% group_by(inspection_month) %>% filter(boro == "Manhattan"))
+        #     data = data %>% arrange(mdy(data$inspection_month))
+        #     data$inspection_month <- as.Date(data$inspection_month, format="%m/%d/%Y")
+        return(data)
+  })
+  
+  # Filter data based on user inputs
+  borough_data4 <- reactive({
+    # Filter by selected borough, inspection year, and violation type
+    year_grade = df_barchart %>% 
+      filter(boro %in% input$borough,
+             cuisine_description %in% input$cursine) %>% 
+      group_by(inspection_year, grade) %>% 
+      summarise(n = n(), na.rm = TRUE) %>% 
+      mutate(inspection_year = as.character(inspection_year))
+    
+    t = data.frame(inspection_year = as.character(rep(2018:2023,6)),
+                   grade = c(rep('A',6),rep('B',6),rep('C',6),
+                             rep('Z',6),rep('P',6),rep('N',6)))
+    
+    year_grade = t %>% 
+      left_join(year_grade, by = c('inspection_year', 'grade')) %>% 
+      mutate(n = ifelse(is.na(n), 0, n))
+    
+    return(year_grade)
+  })
+  
+  borough_data5 <- reactive({
+    
+    year_avg_score = df_barchart %>% 
+      filter(boro %in% input$borough,
+             cuisine_description %in% input$cursine) %>% 
+      group_by(inspection_year, cuisine_description) %>% 
+      summarise(avg_score = round(mean(score),2)) %>% 
+      mutate(inspection_year = factor(inspection_year, 
+                                      level = c('2018','2019','2020','2021','2022','2023')))
+    
+    return(year_avg_score)
+  })  
+  
+  # borough_data2 <- reactive({
+  #   if ( "Manhattan" %in% input$borough){
+  #     data = count(ds %>% group_by(inspection_month) %>% filter(boro == "Manhattan"))
+  #     data = data %>% arrange(mdy(data$inspection_month))
+  #     data$inspection_month <- as.Date(data$inspection_month, format="%m/%d/%Y")
+  #     return(data)
+  #   }
+  #   if ( "Bronx" %in% input$borough){
+  #     data = count(ds %>% group_by(inspection_month) %>% filter(boro == "Bronx"))
+  #     data = data %>% arrange(mdy(data$inspection_month))
+  #     data$inspection_month <- as.Date(data$inspection_month, format="%m/%d/%Y")
+  #     return(data)
+  #   }
+  #   if ( "Brooklyn" %in% input$borough){
+  #     data = count(ds %>% group_by(inspection_month) %>% filter(boro == "Brooklyn"))
+  #     data = data %>% arrange(mdy(data$inspection_month))
+  #     data$inspection_month <- as.Date(data$inspection_month, format="%m/%d/%Y")
+  #     return(data)
+  #   }
+  #   if ( "Queens" %in% input$borough){
+  #     data = count(ds %>% group_by(inspection_month) %>% filter(boro == "Queens"))
+  #     data = data %>% arrange(mdy(data$inspection_month))
+  #     data$inspection_month <- as.Date(data$inspection_month, format="%m/%d/%Y")
+  #     return(data)
+  #   }
+  #   if ( "Staten Island" %in% input$borough){
+  #     data = count(ds %>% group_by(inspection_month) %>% filter(boro == "Staten Island"))
+  #     data = data %>% arrange(mdy(data$inspection_month))
+  #     data$inspection_month <- as.Date(data$inspection_month, format="%m/%d/%Y")
+  #     return(data)
+  #   }
+  # })
+  # 
+  # cuisine_type_data <- reactive({
+  #   if ( "Korean" %in% input$cursine_type){
+  #     data = count(ds %>% group_by(inspection_month) %>% filter(cuisine_description == "Korean"))
+  #     data = data %>% arrange(mdy(data$inspection_month))
+  #     data$inspection_month <- as.Date(data$inspection_month, format="%m/%d/%Y")
+  #     return(data)
+  #   }
+  #   if ( "American" %in% input$cursine_type){
+  #     data = count(ds %>% group_by(inspection_month) %>% filter(cuisine_description == "American"))
+  #     data = data %>% arrange(mdy(data$inspection_month))
+  #     data$inspection_month <- as.Date(data$inspection_month, format="%m/%d/%Y")
+  #     return(data)
+  #   }
+  #   if ( "Chinese" %in% input$cursine_type){
+  #     data = count(ds %>% group_by(inspection_month) %>% filter(cuisine_description == "Chinese"))
+  #     data = data %>% arrange(mdy(data$inspection_month))
+  #     data$inspection_month <- as.Date(data$inspection_month, format="%m/%d/%Y")
+  #     return(data)
+  #   }
+  #   if ( "Japanese" %in% input$cursine_type){
+  #     data = count(ds %>% group_by(inspection_month) %>% filter(cuisine_description == "Japanese"))
+  #     data = data %>% arrange(mdy(data$inspection_month))
+  #     data$inspection_month <- as.Date(data$inspection_month, format="%m/%d/%Y")
+  #     return(data)
+  #   }
+  #   if ( "Italian" %in% input$cursine_type){
+  #     data = count(ds %>% group_by(inspection_month) %>% filter(cuisine_description == "Italian"))
+  #     data = data %>% arrange(mdy(data$inspection_month))
+  #     data$inspection_month <- as.Date(data$inspection_month, format="%m/%d/%Y")
+  #     return(data)
+  #   }
+  # })
+  
+  output$Plot3 <- renderPlot({
+    data3 = borough_data3()
+    print(ggplot(data3,aes(x = inspection_month, y = n, group = 1))+
+            geom_line(color = "#18bc9c")+
+            labs(title = paste("Inspections Over Time on Restaurants in ", input$borough), x="Month",y="Number of Inspections")+ 
+            scale_x_date()) +
+            theme(legend.position = "none",
+            axis.text=element_text(size=14),
+            axis.title=element_text(size=14,face="bold"),
+            plot.title = element_text(size=16, face="bold"))
+  })
+  
+  # output$Plot4 <- renderPlot({
+  #   data4 = cuisine_type_data()
+  #   print(ggplot(data4,aes(x = inspection_month, y = n, group = 1))+
+  #           geom_line(color = "#18bc9c")+labs(x="Month",y="Number of Inspections") + 
+  #           labs(title = paste("Inspections Over Time on ", input$cursine_type, " Restaurants"))+ 
+  #           scale_x_date()) +
+  #           theme(legend.position = "none",
+  #           axis.text=element_text(size=14),
+  #           axis.title=element_text(size=14,face="bold"),
+  #           plot.title = element_text(size=16, face="bold"))
+  # })
+  
+  output$Plot4 <- renderPlot({
+    data = borough_data4()
+    print(data %>%
+            ggplot(aes(x = inspection_year, y = n ,fill = grade)) +
+            geom_bar(stat = 'identity', position = 'fill') +
+            labs(x = 'Year',y = 'Share', title = paste('Grade of Restaurants in ', input$borough)) +
+            coord_flip()+
+            theme(legend.position="top", legend.title=element_blank()))
+  })
+  
+  output$Plot5 <- renderPlot({
+    data = borough_score5()
+    print(data %>% 
+            ggplot(aes(x = inspection_year, y = avg_score, group = cuisine_description, color=cuisine_description)) +
+            geom_line(size = 1) + 
+            geom_point(size = 2) +
+            labs(x = 'Year',y = 'Average Score', title = paste('Average Score of Restaurants in ', input$borough)) +
+            theme(legend.position="top", legend.title=element_blank())
+    )
+  })
+  
+  
+  
   
 }
 

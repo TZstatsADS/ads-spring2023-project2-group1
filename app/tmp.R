@@ -23,8 +23,10 @@ if (!require("lubridate")) {
   library(lubridate)
 }
 
+current_path = rstudioapi::getActiveDocumentContext()$path 
+setwd(dirname(current_path ))
 
-data = read.csv("DOHMH_New_York_City_Restaurant_Inspection_Results.csv")
+data = read.csv("../data/DOHMH_New_York_City_Restaurant_Inspection_Results.csv")
 
 data_filter = data %>% 
   filter(!is.na(SCORE), GRADE != '') %>% 
